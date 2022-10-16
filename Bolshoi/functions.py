@@ -88,7 +88,7 @@ def Volume(a, bn=25):
     for i in range(0, bn):
         vol = a * 4.0 / 3.0 * np.pi * (RADIUS_BINS[i + 1] ** 3 - RADIUS_BINS[i] ** 3)
         volume.append(vol)
-    return volume
+    return np.array(volume)
 
 
 def arrays(arr, X, Y, Z, i):

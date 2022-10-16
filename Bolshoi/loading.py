@@ -1,4 +1,5 @@
 from constants import *
+from functions import *
 from imports import *
 
 data_points = np.load(f'{CACHE_PATH}/halofunc_points.npy')
