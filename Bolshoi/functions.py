@@ -74,11 +74,11 @@ def cost(cvir, obs, cinv, M, Rvir):  # theta is Rs, M, Rvir
 
 
 @jit(nopython=True, parallel=True, fastmath=True)
-def compute_R2(arr_points_2):
+def compute_R2(arr):
     R = np.sqrt(
-        (arr_points_2[:, 0]) ** 2.0
-        + (arr_points_2[:, 1]) ** 2.0
-        + (arr_points_2[:, 2]) ** 2.0
+        (arr[:, 0]) ** 2.0
+        + (arr[:, 1]) ** 2.0
+        + (arr[:, 2]) ** 2.0
     )
     return R
     
