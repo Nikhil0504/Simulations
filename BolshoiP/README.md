@@ -34,6 +34,10 @@ conda create --name <env> --file requirements.txt
 conda activate <env>
 ```
 
+Extract the dataset by using this command:
+
+```gzip -d hlist_1.00231.list.gz```
+
 Make sure to download the dataset and change your `ABS_PATH` in `constants.py`
 to the folder where you downloaded the halos file.
 
