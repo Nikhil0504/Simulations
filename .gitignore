@@ -1,5 +1,7 @@
 *.npy
 *.list
 *.csv
+nohup.out
 
 __pycache__
+cache
