@@ -39,7 +39,5 @@ np.save(f"{CACHE_PATH}/y_points", y)
 np.save(f"{CACHE_PATH}/z_points", z)
 np.save(
     f"{CACHE_PATH}/arr_points",
-    XYZ[
-        1:,
-    ],
+    XYZ[1:],
 )
