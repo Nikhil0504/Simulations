@@ -1,0 +1,38 @@
+from constants import *
+from imports import *
+
+data_points = np.array(0.0, dtype=np.float64)
+x = np.array(0.0, dtype=np.float64)
+y = np.array(0.0, dtype=np.float64)
+z = np.array(0.0, dtype=np.float64)
+rvir = np.array(0.0, dtype=np.float64)
+rs = np.array(0.0, dtype=np.float64)
+
+with open(HALOS_PATH) as f:
+    for line in f:
+        if '#' not in line:
+            l = np.fromstring(line, dtype=np.float64, sep=' ')
+            data = l[10]  # halos
+            check = l[5]  # sub-halos
+            # only get distinct halos and M_vir between 1e11-1e15 and
+            # constrain the Z to a certain point.
+            if check == -1 and l[19] < 10.0 and UPPER_LIMIT > data > LOWER_LIMIT:
+                data_points = np.append(data_points, data)
+                x = np.append(x, l[17])
+                y = np.append(y, l[18])
+                z = np.append(z, l[19])
+                rvir = np.append(rvir, l[11])
+                rs = np.append(rs, l[35])
+
+# Break the big csv file to chunk(s) and convert to a numpy array
+chunk = pd.read_csv(POINTS_PATH, chunksize=1000000)
+pd_df = pd.concat(chunk)
+arr_points = pd_df.to_numpy()
+
+np.save(f'{CACHE_PATH}/halofunc_points', data_points)
+np.save(f'{CACHE_PATH}/rvir_points', rvir)
+np.save(f'{CACHE_PATH}/rs_points', rs)
+np.save(f'{CACHE_PATH}/x_points', x)
+np.save(f'{CACHE_PATH}/y_points', y)
+np.save(f'{CACHE_PATH}/z_points', z)
+np.save(f'{CACHE_PATH}/arr_points', arr_points)
