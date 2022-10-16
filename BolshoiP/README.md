@@ -5,6 +5,7 @@
 - [This is the Bolshoi Plank Simulation](#this-is-the-bolshoi-plank-simulation)
   - [Download the datasets](#download-the-datasets)
   - [Setting Up](#setting-up)
+  - [Data Structure](#data-structure)
 
 ## Download the datasets
 
@@ -46,3 +47,26 @@ Then run the preprocessing script using this command:
 ```bash
 python preprocess.py
 ```
+
+After the preprocessing, make sure to create an images directory in the
+folder where the plotting scripts are.
+`mkdir figures/`
+
+Now, to load all the constants and imports and data just use this:
+```python
+from loading import *
+```
+This loads in all the preprocessed data as numpy arrays and also all the 
+required constants.
+
+## Data Structure
+A part of the dataset is used for the plots over here.
+Here is the table for all of them
+
+|      Name      |                   Description                   |          Units         |
+|:--------------:|:-----------------------------------------------:|:----------------------:|
+| pid            | ID of least massive halo                        | -1/id                  |
+| Mvir           | Halo Mass                                       | $\textup{M}_{\odot}/h$ |
+| Rvir           | Halo Radius                                     | kpc/h                  |
+| Rs_Klypin      | Scale radius                                    |                        |
+| Halfmass_Scale | Scale factor at which the MMP reaches 0.5*Mpeak |                        |
