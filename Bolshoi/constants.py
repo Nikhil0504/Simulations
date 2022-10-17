@@ -24,7 +24,7 @@ plt.rcParams["ytick.minor.size"] = 7
 plt.rcParams["xtick.labelsize"] = 15
 plt.rcParams["ytick.labelsize"] = 15
 plt.rcParams["font.size"] = 25
-plt.rcParams["legend.fontsize"] = 15
+plt.rcParams["legend.fontsize"] = 30
 
 
 # PATHS
