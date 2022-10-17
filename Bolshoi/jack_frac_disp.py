@@ -67,7 +67,7 @@ for loc in locations:
     ax1.set_ylabel(r'$\rho (M_{\odot} h^2 / \mathrm{Mpc}^3)$')
     ax1.legend(loc='upper right')
 
-    ax2.hist(opts[1:]/opts[1])
+    ax2.hist(opts[1:]/opts[1], alpha=0.5)
     ax2.set_xlabel('Fractional Concentration')
 
     plt.suptitle(f'Halo Mass: {np.log10(M):.2f}', y=1.002)
