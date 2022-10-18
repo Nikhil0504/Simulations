@@ -2,7 +2,7 @@
 *.list
 *.csv
 nohup.out
-test.ipynb
+test.*
 
 __pycache__
 cache
