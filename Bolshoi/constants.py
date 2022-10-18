@@ -1,3 +1,5 @@
+import platform
+
 from imports import np, os, plt
 
 # MAIN CONSTANTS
@@ -28,7 +30,7 @@ plt.rcParams["legend.fontsize"] = 30
 
 
 # PATHS
-if os.name != "posix":
+if platform.system() == "Darwin":
     ABS_PATH = "/Users/nikhilgaruda/Desktop/Simulations/Bolshoi"
 else:
     ABS_PATH = "/spiff/nikhilgaruda"
