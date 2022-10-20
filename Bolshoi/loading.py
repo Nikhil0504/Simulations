@@ -9,5 +9,6 @@ z = np.load(f'{CACHE_PATH}/z_points.npy')
 rvir = np.load(f'{CACHE_PATH}/rvir_points.npy')
 rs = np.load(f'{CACHE_PATH}/rs_points.npy')
 arr_points = np.load(f'{CACHE_PATH}/arr_points.npy')
+print('Loaded Cache Files')
 
 np.random.seed(10)
