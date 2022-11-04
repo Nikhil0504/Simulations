@@ -4,12 +4,19 @@ from imports import *
 
 @jit(nopython=True, parallel=True)
 def get_points(X, Y, Z, arr):
-    arr_points_2 = arr[arr[:, 0] < X + 10]
-    arr_points_2 = arr_points_2[X - 10 < arr_points_2[:, 0]]
-    arr_points_2 = arr_points_2[arr_points_2[:, 1] < Y + 10]
-    arr_points_2 = arr_points_2[Y - 10 < arr_points_2[:, 1]]
-    arr_points_2 = arr_points_2[arr_points_2[:, 2] < Z + 10]
-    arr_points_2 = arr_points_2[Z - 10 < arr_points_2[:, 2]]
+    arr_points_2 = arr[
+        (arr[:, 0] < X + 10)
+        & (X - 10 < arr[:, 0])
+        & (arr[:, 1] < Y + 10)
+        & (Y - 10 < arr[:, 1])
+        & (arr[:, 2] < Z + 10)
+        & (Z - 10 < arr[:, 2])
+    ]
+    # arr_points_2 = arr_points_2[X - 10 < arr_points_2[:, 0]]
+    # arr_points_2 = arr_points_2[arr_points_2[:, 1] < Y + 10]
+    # arr_points_2 = arr_points_2[Y - 10 < arr_points_2[:, 1]]
+    # arr_points_2 = arr_points_2[arr_points_2[:, 2] < Z + 10]
+    # arr_points_2 = arr_points_2[Z - 10 < arr_points_2[:, 2]]
     return arr_points_2
 
 
@@ -40,6 +47,7 @@ def rho_r(Rs, M, Rvir, rmin=1e-2, rmax=1e1, Nbins=25):
     term = r / Rs
     rho_not = rho_o(M, Rvir, Rs)
     return r, rho_not / (term * ((1.0 + term) ** 2.0))
+
 
 def cinv(obs):
     c = np.diag((0.25 * obs) ** 2)
@@ -75,13 +83,10 @@ def cost(cvir, obs, cinv, M, Rvir):  # theta is Rs, M, Rvir
 
 @jit(nopython=True, parallel=True, fastmath=True)
 def compute_R2(arr):
-    R = np.sqrt(
-        (arr[:, 0]) ** 2.0
-        + (arr[:, 1]) ** 2.0
-        + (arr[:, 2]) ** 2.0
-    )
+    R = np.sqrt((arr[:, 0]) ** 2.0 + (arr[:, 1]) ** 2.0 + (arr[:, 2]) ** 2.0)
     return R
-    
+
+
 @jit(fastmath=True)
 def Volume(a, bn=25):
     volume = []
