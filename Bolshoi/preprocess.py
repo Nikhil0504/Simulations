@@ -1,5 +1,4 @@
-from constants import (CACHE_PATH, HALOS_PATH, LOWER_LIMIT, POINTS_PATH,
-                       UPPER_LIMIT)
+from constants import CACHE_PATH, HALOS_PATH, LOWER_LIMIT, POINTS_PATH, UPPER_LIMIT
 from imports import np, pd
 
 data_points = np.array([])

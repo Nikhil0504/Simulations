@@ -38,7 +38,7 @@ else:
 HALOS_PATH = os.path.join(ABS_PATH, "hlist_1.00035.list")
 POINTS_PATH = os.path.join(ABS_PATH, "sim_points_10p.csv")
 
-if not os.path.exists(f'{ABS_PATH}/cache/'):
-    os.mkdir(f'{ABS_PATH}/cache/')
+if not os.path.exists(f"{ABS_PATH}/cache/"):
+    os.mkdir(f"{ABS_PATH}/cache/")
 
 CACHE_PATH = os.path.join(ABS_PATH, "cache/Bolshoi")

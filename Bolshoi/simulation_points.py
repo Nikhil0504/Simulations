@@ -1,4 +1,4 @@
-# This code is for checking 4 selected halos without jackknifing them 
+# This code is for checking 4 selected halos without jackknifing them
 # and saving their densities for future use.
 from loading import *
 
@@ -25,5 +25,4 @@ for location in locations:
     densities.append(list(density))
 
 densities = np.array(densities)
-np.save(f'{CACHE_PATH}/simulation_points', densities)
-
+np.save(f"{CACHE_PATH}/simulation_points", densities)

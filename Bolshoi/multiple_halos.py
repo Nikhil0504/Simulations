@@ -5,7 +5,7 @@ mean_cvirs = np.array([])
 std_errs_cvirs = np.array([])
 
 bins = MASS_BINS
-print('Starting Bins')
+print("Starting Bins")
 for ind in range(bins.size - 1):
     m_ind = np.nonzero((data_points <= bins[ind + 1]) & (data_points > bins[ind]))[0]
     N_samples = min([len(m_ind), 100])
@@ -16,7 +16,7 @@ for ind in range(bins.size - 1):
     mean_ms = np.append(mean_ms, mean_m)
 
     opts = np.array([])
-    
+
     for r in r_ind:
         M = data_points[r]
         Rvir = rvir[r] / 1000

@@ -1,7 +1,7 @@
 # plots for jackknife (cached points)
 from loading import *
 
-sim_points = np.load(f'{CACHE_PATH}/simulation_points.npy')
+sim_points = np.load(f"{CACHE_PATH}/simulation_points.npy")
 
 # Hard coding the desired locations to get
 # 4 ranges of halos
@@ -35,8 +35,8 @@ for loc in locations:
         if i == 1:
             volume = Volume(1)
         else:
-            volume = Volume(7./8.)
-        
+            volume = Volume(7.0 / 8.0)
+
         mask = np.where(RADIUS < rvir[loc] / 1000)
         obs = total_mass / volume  # type: ignore
         obs = obs[mask]
@@ -46,24 +46,28 @@ for loc in locations:
         oRs = Rvir / optres.x
         ocos = cost(optres.x, obs, c_inv, M, Rvir)
         orad, orhos = rho_r(oRs, M, Rvir)
-        
+
         if i == 1:
             # plt.plot(RADIUS[mask], obs, linewidth=1, label=f'Full Sample', color='red', zorder=10)
-            plt.plot(orad, orhos, linewidth=1, label=f'Full Sample', color='red', zorder=10)
+            plt.plot(
+                orad, orhos, linewidth=1, label=f"Full Sample", color="red", zorder=10
+            )
         else:
             # plt.plot(RADIUS[mask], obs, linewidth=0.5, color='black', zorder=1)
-            plt.plot(orad, orhos, linewidth=0.5, color='black', zorder=1)
-        # plt.plot(orad, orhos, linewidth=1, marker='*', label=f'array{i+1} {b[i]}') 
+            plt.plot(orad, orhos, linewidth=0.5, color="black", zorder=1)
+        # plt.plot(orad, orhos, linewidth=1, marker='*', label=f'array{i+1} {b[i]}')
         plt.xscale("log")
         plt.yscale("log")
-    
-    plt.plot([],[],color='black',linewidth=3,marker='None',label="Jackknife Samples")
-    plt.title(f'Halo Mass: {np.log10(M):.2f}')
-    plt.axvline(x=Rs, color='darkgreen', label='Rs location')
-    #plt.axvline(x=Rvir, color='g', label='Rvir location')
-    # plt.axvspan(Rvir, bins2[-1], color='gray', alpha=0.3)
-    plt.xlabel(r'$r (\mathrm{Mpc}/h)$')
-    plt.ylabel(r'$\rho (M_{\odot} h^2 / \mathrm{Mpc}^3)$')
-    plt.legend(loc='upper right')
 
-plt.savefig(f'figures/4_jacks.png')
+    plt.plot(
+        [], [], color="black", linewidth=3, marker="None", label="Jackknife Samples"
+    )
+    plt.title(f"Halo Mass: {np.log10(M):.2f}")
+    plt.axvline(x=Rs, color="darkgreen", label="Rs location")
+    # plt.axvline(x=Rvir, color='g', label='Rvir location')
+    # plt.axvspan(Rvir, bins2[-1], color='gray', alpha=0.3)
+    plt.xlabel(r"$r (\mathrm{Mpc}/h)$")
+    plt.ylabel(r"$\rho (M_{\odot} h^2 / \mathrm{Mpc}^3)$")
+    plt.legend(loc="upper right")
+
+plt.savefig(f"figures/4_jacks.png")
