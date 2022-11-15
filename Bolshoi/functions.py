@@ -59,12 +59,12 @@ def chisq(obs, model, cinv):
     residual = obs - model
     # chis = np.dot(residual, np.dot(cinv, residual))
     chis = np.dot(residual, np.dot(cinv, np.transpose(residual)))
-    chis2 = 0
+    # chis2 = 0
     # residual ** 2 * cinv for every bin
-    for bin in range(len(residual)):
-        dummy = (residual[bin] ** 2) * cinv[bin, bin]
+    # for bin in range(len(residual)):
+    #     dummy = (residual[bin] ** 2) * cinv[bin, bin]
         # print(dummy)
-        chis2 += dummy
+    #     chis2 += dummy
     # print(f"Chis numpy: {chis}")
     # print(f"Chis 2: {chis2}\n")
     return chis
