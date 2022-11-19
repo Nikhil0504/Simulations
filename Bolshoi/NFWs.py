@@ -15,30 +15,49 @@ for loc in range(len(locations)):
     Rvir = rvir[locations[loc]] / 1000
     Rs = rs[locations[loc]] / 1000
     cvir = Rvir / Rs
+    print('actual cvir', cvir)
+    print('actual rs', Rs)
 
     mask = np.where(RADIUS < rvir[locations[loc]] / 1000)
     obs = sim_points[loc, :]
     obs = obs[mask]
     c_inv = cinv(obs)
 
-    rad, rhos = rho_r(Rs, M, Rvir)
-    cos = cost(cvir, obs, c_inv, M, Rvir)
+    # rad, rhos = rho_r(Rs, M, Rvir)
+    # cos = cost(cvir, obs, c_inv, M, Rvir, 0)
 
-    optres = iminuit.minimize(cost, [10], args=(obs, c_inv, M, Rvir))
-    oRs = Rvir / optres.x
-    ocos = cost(optres.x, obs, c_inv, M, Rvir)
+    optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 0))
+    print('gau cvir', np.exp(optres.x))
+    oRs = Rvir / np.exp(optres.x)
+    print('gau rs', oRs)
+    # ocos = cost(optres.x, obs, c_inv, M, Rvir, 0)
     orad, orhos = rho_r(oRs, M, Rvir)
 
+    optres2 = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 1))
+    print('lor cvir', np.exp(optres2.x))
+    oRs2 = Rvir / np.exp(optres2.x)
+    print('lor rs', oRs2)
+    # ocos2 = cost(optres2.x, obs, c_inv, M, Rvir, 1)
+    orad2, orhos2 = rho_r(oRs2, M, Rvir)
+
     # plt.plot(RADIUS, sim_points[loc, :], linewidth=0.5, label=f'simulation')
-    plt.plot(RADIUS[mask], sim_points[loc, :][mask], linewidth=0.5, label=f"simulation")
-    plt.plot(
-        rad, rhos, linewidth=2, label=f"Bolshoi NFW $\\rightarrow$ {-0.5 * cos:.2f}"
-    )
+    plt.plot(RADIUS[mask], sim_points[loc, :][mask], linewidth=1.5, label=f"simulation, cvir={cvir:.5f}")
+    # plt.plot(
+    #     rad, rhos, linewidth=2, label=f"Bolshoi NFW $\\rightarrow$ {-0.5 * cos:.2f}"
+    # )
     plt.plot(
         orad,
         orhos,
+        'r--',
         linewidth=2,
-        label=f"Optimised NFW $\\rightarrow$  {-0.5 * ocos:.2f}",
+        label=f"Gaussian Uncertianties, cvir = {Rvir/oRs}",
+    )
+    plt.plot(
+        orad2,
+        orhos2,
+        'g--',
+        linewidth=2,
+        label=f"Lorentz Distribution Uncertianties, cvir = {Rvir/oRs2}",
     )
     plt.axvline(x=Rs, color="r", label="Rs location")
     plt.axvline(x=oRs, color="m", label="Optimised Rs location")
@@ -51,6 +70,6 @@ for loc in range(len(locations)):
 
     plt.xscale("log")
     plt.yscale("log")
-    plt.legend()
+    plt.legend(prop={'size': 13})
 
-plt.savefig("figures/NFW_opti_vs_actual_2")
+plt.savefig("figures/NFW_opti_vs_actual_3")
