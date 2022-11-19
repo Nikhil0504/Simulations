@@ -70,15 +70,22 @@ def chisq(obs, model, cinv):
     return chis
 
 
-@jit()
-def cost(cvir, obs, cinv, M, Rvir):  # theta is Rs, M, Rvir
-    if cvir < 0:
+@jit() 
+def cost(lncvir, obs, cinv, M, Rvir, index=0):  # theta is Rs, M, Rvir
+    if np.exp(lncvir) < 0:
         chis = np.inf
     else:
-        Rs = Rvir / cvir
+        Rs = Rvir / np.exp(lncvir)
+        # print(Rs)
         _, model = rho_r(Rs, M, Rvir)
         chis = chisq(obs, model, cinv)
-    return chis
+    # print(index)
+    if index == 0:
+        print(np.log(chis))
+        return chis
+    elif index == 1:
+        # print('log chisq', np.log(1 + chis), 'cvir', np.exp(lncvir))
+        return np.log(1 + chis ** 2)
 
 
 @jit(nopython=True, parallel=True, fastmath=True)
