@@ -1,7 +1,5 @@
 from loading import *
 
-sim_points = np.load(f"{CACHE_PATH}/simulation_points.npy")
-
 # Hard coding the desired locations to get
 # 4 ranges of halos
 locations = np.array([[2, 31, 114]])
@@ -15,33 +13,44 @@ for loc in range(len(locations)):
     Rvir = rvir[locations[loc]] / 1000
     Rs = rs[locations[loc]] / 1000
     cvir = Rvir / Rs
-    print('actual cvir', cvir)
-    print('actual rs', Rs)
+    # print('actual cvir', cvir)
+    # print('actual rs', Rs)
+
+    X, Y, Z = x[locations[loc]], y[locations[loc]], z[locations[loc]]
+    arr_points_2 = get_points(X, Y, Z, arr_points)
+
+    R = compute_R2(arrays(arr_points_2, X, Y, Z, 1))
+    # R = compute_R(X, Y, Z, arr_points_2)
+    pairs, _ = np.histogram(R, bins=RADIUS_BINS)
+    total_mass = np.array(pairs) * MASS * (100 / PERCENT)
+
+    volume = Volume(1)
+
+    obs = total_mass / volume
 
     mask = np.where(RADIUS < rvir[locations[loc]] / 1000)
-    obs = sim_points[loc, :]
     obs = obs[mask]
+
     c_inv = cinv(obs)
 
     # rad, rhos = rho_r(Rs, M, Rvir)
     # cos = cost(cvir, obs, c_inv, M, Rvir, 0)
 
     optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 0))
-    print('gau cvir', np.exp(optres.x))
+    # print('gau cvir', np.exp(optres.x))
     oRs = Rvir / np.exp(optres.x)
-    print('gau rs', oRs)
+    # print('gau rs', oRs)
     # ocos = cost(optres.x, obs, c_inv, M, Rvir, 0)
     orad, orhos = rho_r(oRs, M, Rvir)
 
     optres2 = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 1))
-    print('lor cvir', np.exp(optres2.x))
+    # print('lor cvir', np.exp(optres2.x))
     oRs2 = Rvir / np.exp(optres2.x)
-    print('lor rs', oRs2)
+    # print('lor rs', oRs2)
     # ocos2 = cost(optres2.x, obs, c_inv, M, Rvir, 1)
     orad2, orhos2 = rho_r(oRs2, M, Rvir)
 
-    # plt.plot(RADIUS, sim_points[loc, :], linewidth=0.5, label=f'simulation')
-    plt.plot(RADIUS[mask], sim_points[loc, :][mask], linewidth=1.5, label=f"simulation, cvir={cvir:.5f}")
+    plt.plot(RADIUS[mask], obs, linewidth=1.5, label=f"simulation, cvir={cvir:.5f}")
     # plt.plot(
     #     rad, rhos, linewidth=2, label=f"Bolshoi NFW $\\rightarrow$ {-0.5 * cos:.2f}"
     # )
@@ -50,14 +59,14 @@ for loc in range(len(locations)):
         orhos,
         'r--',
         linewidth=2,
-        label=f"Gaussian Uncertianties, cvir = {Rvir/oRs}",
+        label=f"Gaussian Uncertianties, cvir = {np.exp(optres.x)}",
     )
     plt.plot(
         orad2,
         orhos2,
         'g--',
         linewidth=2,
-        label=f"Lorentz Distribution Uncertianties, cvir = {Rvir/oRs2}",
+        label=f"Lorentz Distribution Uncertianties, cvir = {np.exp(optres2.x)}",
     )
     plt.axvline(x=Rs, color="r", label="Rs location")
     plt.axvline(x=oRs, color="m", label="Optimised Rs location")
