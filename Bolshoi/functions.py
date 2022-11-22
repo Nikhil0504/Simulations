@@ -55,37 +55,42 @@ def cinv(obs):
 
 
 @njit(parallel=True)
-def chisq(obs, model, cinv):
+def chisq(obs, model, cinv, index=0):
+    # 0 for gaussian
+    # 1 for lorentz
     residual = obs - model
     # chis = np.dot(residual, np.dot(cinv, residual))
-    chis = np.dot(residual, np.dot(cinv, np.transpose(residual)))
-    # chis2 = 0
+    # chis = np.dot(residual, np.dot(cinv, np.transpose(residual)))
+    cost = 0
     # residual ** 2 * cinv for every bin
-    # for bin in range(len(residual)):
-    #     dummy = (residual[bin] ** 2) * cinv[bin, bin]
+    for bin in range(len(residual)):
+        if index == 0:
+            dummy = (residual[bin] ** 2) * cinv[bin, bin]
+        elif index == 1:
+            dummy = np.log(1 + ((residual[bin] ** 2) * cinv[bin, bin]))
         # print(dummy)
-    #     chis2 += dummy
+        cost += dummy
     # print(f"Chis numpy: {chis}")
     # print(f"Chis 2: {chis2}\n")
-    return chis
+    return cost
 
 
 @jit() 
 def cost(lncvir, obs, cinv, M, Rvir, index=0):  # theta is Rs, M, Rvir
     if np.exp(lncvir) < 0:
-        chis = np.inf
+        Cost = np.inf
     else:
         Rs = Rvir / np.exp(lncvir)
         # print(Rs)
         _, model = rho_r(Rs, M, Rvir)
-        chis = chisq(obs, model, cinv)
+        Cost = chisq(obs, model, cinv, index)
     # print(index)
     if index == 0:
-        print(np.log(chis))
-        return chis
+        # print(np.log(chis))
+        return Cost
     elif index == 1:
         # print('log chisq', np.log(1 + chis), 'cvir', np.exp(lncvir))
-        return np.log(1 + chis ** 2)
+        return Cost
 
 
 @jit(nopython=True, parallel=True, fastmath=True)
