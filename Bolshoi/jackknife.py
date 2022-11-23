@@ -43,8 +43,8 @@ for loc in locations:
         c_inv = cinv(obs)
 
         optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 1))
-        oRs = Rvir / optres.x
-        ocos = cost(optres.x, obs, c_inv, M, Rvir)
+        oRs = Rvir / np.exp(optres.x)
+        ocos = cost(np.exp(optres.x), obs, c_inv, M, Rvir)
         orad, orhos = rho_r(oRs, M, Rvir)
 
         if i == 1:
