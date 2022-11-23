@@ -20,7 +20,7 @@ for ind in range(bins.size - 1):
     opts = np.array([])
 
     for index in a:
-        print(f"{bins[ind]}-{bins[ind + 1]} -> J: {index}")
+        print(f"{np.log10(bins[ind])}-{np.log10(bins[ind + 1])} -> J: {index}")
         for r in r_ind:
             M = data_points[r]
             Rvir = rvir[r] / 1000
@@ -46,8 +46,8 @@ for ind in range(bins.size - 1):
             obs = obs[mask]
             c_inv = cinv(obs)
 
-            optres = iminuit.minimize(cost, [10], args=(obs, c_inv, M, Rvir))
-            opts = np.append(opts, optres.x)
+            optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 1))
+            opts = np.append(opts, np.exp(optres.x))
 
         opts = opts.reshape(-1, 1)
         # print(opts.shape)
@@ -63,6 +63,6 @@ for ind in range(bins.size - 1):
 m_c = np.mean(total[:, 4:], axis=1)  # type: ignore
 total = np.column_stack((total, m_c))
 # total - id, M, actual cvir, opt cvir, 8 jacknifes (j_c_i), mean of j_c
-np.save(f"{CACHE_PATH}/jackknife_cvirs.npy", total)
-np.savetxt(f"{CACHE_PATH}/jackknife_cvirs.out", total)
+np.save(f"{CACHE_PATH}/jackknife_cvirs_lor.npy", total)
+np.savetxt(f"{CACHE_PATH}/jackknife_cvirs_lor.out", total)
 print(total.shape)
