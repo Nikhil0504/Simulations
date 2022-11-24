@@ -58,6 +58,7 @@ def cinv(obs):
 def chisq(obs, model, cinv, index=0):
     # 0 for gaussian
     # 1 for lorentz
+    # 2 for abs
     residual = obs - model
     # chis = np.dot(residual, np.dot(cinv, residual))
     # chis = np.dot(residual, np.dot(cinv, np.transpose(residual)))
@@ -68,8 +69,12 @@ def chisq(obs, model, cinv, index=0):
             dummy = (residual[bin] ** 2) * cinv[bin, bin]
         elif index == 1:
             dummy = np.log(1 + ((residual[bin] ** 2) * cinv[bin, bin]))
+        elif index == 2:
+            # dummy = np.abs(residual[bin]) * np.sqrt(cinv[bin, bin])
+            c = np.linalg.inv(np.diag(0.25*obs))
+            dummy = np.abs(residual[bin]) * c[bin, bin]
         # print(dummy)
-        cost += dummy
+        cost += dummy #type: ignore
     # print(f"Chis numpy: {chis}")
     # print(f"Chis 2: {chis2}\n")
     return cost
@@ -90,6 +95,8 @@ def cost(lncvir, obs, cinv, M, Rvir, index=0):  # theta is Rs, M, Rvir
         return Cost
     elif index == 1:
         # print('log chisq', np.log(1 + chis), 'cvir', np.exp(lncvir))
+        return Cost
+    elif index == 2:
         return Cost
 
 

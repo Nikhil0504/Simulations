@@ -19,8 +19,8 @@ for loc in range(len(locations)):
     X, Y, Z = x[locations[loc]], y[locations[loc]], z[locations[loc]]
     arr_points_2 = get_points(X, Y, Z, arr_points)
 
-    R = compute_R2(arrays(arr_points_2, X, Y, Z, 1))
-    # R = compute_R(X, Y, Z, arr_points_2)
+    # R = compute_R2(arrays(arr_points_2, X, Y, Z, 1))
+    R = compute_R(X, Y, Z, arr_points_2)
     pairs, _ = np.histogram(R, bins=RADIUS_BINS)
     total_mass = np.array(pairs) * MASS * (100 / PERCENT)
 
@@ -50,27 +50,39 @@ for loc in range(len(locations)):
     # ocos2 = cost(optres2.x, obs, c_inv, M, Rvir, 1)
     orad2, orhos2 = rho_r(oRs2, M, Rvir)
 
-    plt.plot(RADIUS[mask], obs, linewidth=1.5, label=f"simulation, cvir={cvir:.5f}")
+    optres3 = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 2))
+    oRs3 = Rvir / np.exp(optres3.x)
+    # ocos2 = cost(optres2.x, obs, c_inv, M, Rvir, 2)
+    orad3, orhos3 = rho_r(oRs3, M, Rvir)
+
+    plt.plot(RADIUS[mask], obs, '--', color='black', linewidth=2, label=f"simulation, cvir={cvir:.5f}")
     # plt.plot(
-    #     rad, rhos, linewidth=2, label=f"Bolshoi NFW $\\rightarrow$ {-0.5 * cos:.2f}"
+    #     rad, rhos, linewidth=1, label=f"Bolshoi NFW"
     # )
     plt.plot(
         orad,
         orhos,
-        'r--',
-        linewidth=2,
+        'r',
+        linewidth=1,
         label=f"Gaussian Uncertianties, cvir = {np.exp(optres.x)}",
     )
     plt.plot(
         orad2,
         orhos2,
-        'g--',
-        linewidth=2,
+        'g',
+        linewidth=1,
         label=f"Lorentz Distribution Uncertianties, cvir = {np.exp(optres2.x)}",
     )
-    plt.axvline(x=Rs, color="r", label="Rs location")
-    plt.axvline(x=oRs, color="m", label="Optimised Rs location")
-    plt.axvline(x=Rvir, color="g", label="Rvir location")
+    plt.plot(
+        orad3,
+        orhos3,
+        'b',
+        linewidth=1,
+        label=f"Absolute Distribution Uncertianties, cvir = {np.exp(optres3.x)}",
+    )
+    # plt.axvline(x=Rs, color="r", label="Rs location")
+    # plt.axvline(x=oRs, color="m", label="Optimised Rs location")
+    # plt.axvline(x=Rvir, color="g", label="Rvir location")
     # plt.axvspan(Rvir, RADIUS_BINS[-1], color='gray', alpha=0.3)
 
     plt.title(f"Halo Mass: {np.log10(M):.2f}")
@@ -81,4 +93,4 @@ for loc in range(len(locations)):
     plt.yscale("log")
     plt.legend(prop={'size': 13})
 
-plt.savefig("figures/NFW_opti_vs_actual_3")
+plt.savefig("figures/NFW_opti_vs_actual_4")

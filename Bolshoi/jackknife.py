@@ -42,7 +42,7 @@ for loc in locations:
         obs = obs[mask]
         c_inv = cinv(obs)
 
-        optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 1))
+        optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 2))
         oRs = Rvir / np.exp(optres.x)
         ocos = cost(np.exp(optres.x), obs, c_inv, M, Rvir)
         orad, orhos = rho_r(oRs, M, Rvir)
@@ -70,4 +70,4 @@ for loc in locations:
     plt.ylabel(r"$\rho (M_{\odot} h^2 / \mathrm{Mpc}^3)$")
     plt.legend(loc="upper right", prop={'size': 13})
 
-plt.savefig(f"figures/4_jacks_1.png")
+plt.savefig(f"figures/4_jacks_2.png")
