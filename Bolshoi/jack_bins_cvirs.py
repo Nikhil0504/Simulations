@@ -46,7 +46,7 @@ for ind in range(bins.size - 1):
             obs = obs[mask]
             c_inv = cinv(obs)
 
-            optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 1))
+            optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 'lorentz'))
             opts = np.append(opts, np.exp(optres.x))
 
         opts = opts.reshape(-1, 1)

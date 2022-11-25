@@ -36,26 +36,26 @@ for loc in range(len(locations)):
     # rad, rhos = rho_r(Rs, M, Rvir)
     # cos = cost(cvir, obs, c_inv, M, Rvir, 0)
 
-    optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 0))
+    optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 'gaussian'))
     # print('gau cvir', np.exp(optres.x))
     oRs = Rvir / np.exp(optres.x)
     # print('gau rs', oRs)
     # ocos = cost(optres.x, obs, c_inv, M, Rvir, 0)
     orad, orhos = rho_r(oRs, M, Rvir)
 
-    optres2 = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 1))
+    optres2 = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 'lorentz'))
     # print('lor cvir', np.exp(optres2.x))
     oRs2 = Rvir / np.exp(optres2.x)
     # print('lor rs', oRs2)
     # ocos2 = cost(optres2.x, obs, c_inv, M, Rvir, 1)
     orad2, orhos2 = rho_r(oRs2, M, Rvir)
 
-    optres3 = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 2))
+    optres3 = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 'abs'))
     oRs3 = Rvir / np.exp(optres3.x)
     # ocos2 = cost(optres2.x, obs, c_inv, M, Rvir, 2)
     orad3, orhos3 = rho_r(oRs3, M, Rvir)
 
-    plt.plot(RADIUS[mask], obs, '--', color='black', linewidth=2, label=f"simulation, cvir={cvir:.5f}")
+    # plt.plot(RADIUS[mask], obs, '--', color='black', linewidth=2, label=f"simulation, cvir={cvir:.5f}")
     # plt.plot(
     #     rad, rhos, linewidth=1, label=f"Bolshoi NFW"
     # )

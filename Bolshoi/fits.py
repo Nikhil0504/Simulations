@@ -40,13 +40,13 @@ for loc in locations:
     b = np.array([])
     bl = np.array([])
     for c in cvirs:
-        cos = cost(c, obs, c_inv, M, Rvir)
+        cos = cost(c, obs, c_inv, M, Rvir, 'gaussian')
         b = np.append(b, cos)
-        cos1 = cost(c, obs, c_inv, M, Rvir, 1)
+        cos1 = cost(c, obs, c_inv, M, Rvir, 'lorentz')
         bl = np.append(bl, cos1)
 
-    optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 0))
-    optresl = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 1))
+    optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 'gaussian'))
+    optresl = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 'lorentz'))
 
     plt.scatter(np.exp(cvirs), bl)
     plt.scatter(np.exp(cvirs), b)

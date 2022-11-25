@@ -55,21 +55,18 @@ def cinv(obs):
 
 
 @njit(parallel=True)
-def chisq(obs, model, cinv, index=0):
-    # 0 for gaussian
-    # 1 for lorentz
-    # 2 for abs
+def chisq(obs, model, cinv, func='gaussian'):
     residual = obs - model
     # chis = np.dot(residual, np.dot(cinv, residual))
     # chis = np.dot(residual, np.dot(cinv, np.transpose(residual)))
     cost = 0
     # residual ** 2 * cinv for every bin
     for bin in range(len(residual)):
-        if index == 0:
+        if func == 'gaussian':
             dummy = (residual[bin] ** 2) * cinv[bin, bin]
-        elif index == 1:
+        elif func == 'lorentz':
             dummy = np.log(1 + ((residual[bin] ** 2) * cinv[bin, bin]))
-        elif index == 2:
+        elif func == 'abs':
             # dummy = np.abs(residual[bin]) * np.sqrt(cinv[bin, bin])
             c = np.linalg.inv(np.diag(0.25*obs))
             dummy = np.abs(residual[bin]) * c[bin, bin]
@@ -81,7 +78,7 @@ def chisq(obs, model, cinv, index=0):
 
 
 @jit() 
-def cost(lncvir, obs, cinv, M, Rvir, index=0):  # theta is Rs, M, Rvir
+def cost(lncvir, obs, cinv, M, Rvir, index='gaussian'):  # theta is Rs, M, Rvir
     if np.exp(lncvir) < 0:
         Cost = np.inf
     else:
