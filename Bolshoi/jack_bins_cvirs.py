@@ -44,7 +44,7 @@ for ind in range(bins.size - 1):
             mask = np.where(RADIUS < rvir[r] / 1000)
 
             obs = obs[mask]
-            c_inv = cinv(obs)
+            c_inv = cinv(obs, 0.25, 1)
 
             optres = iminuit.minimize(
                 cost, [np.log(10)], args=(obs, c_inv, M, Rvir, "lorentz")
