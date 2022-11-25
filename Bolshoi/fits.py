@@ -18,7 +18,7 @@ for loc in locations:
     M = data_points[loc]
     Rvir = rvir[loc] / 1000
     Rs = rs[loc] / 1000
-    cvir = Rvir/Rs
+    cvir = Rvir / Rs
 
     X, Y, Z = x[loc], y[loc], z[loc]
     arr_points_2 = get_points(X, Y, Z, arr_points)
@@ -40,25 +40,29 @@ for loc in locations:
     b = np.array([])
     bl = np.array([])
     for c in cvirs:
-        cos = cost(c, obs, c_inv, M, Rvir, 'gaussian')
+        cos = cost(c, obs, c_inv, M, Rvir, "gaussian")
         b = np.append(b, cos)
-        cos1 = cost(c, obs, c_inv, M, Rvir, 'lorentz')
+        cos1 = cost(c, obs, c_inv, M, Rvir, "lorentz")
         bl = np.append(bl, cos1)
 
-    optres = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 'gaussian'))
-    optresl = iminuit.minimize(cost, [np.log(10)], args=(obs, c_inv, M, Rvir, 'lorentz'))
+    optres = iminuit.minimize(
+        cost, [np.log(10)], args=(obs, c_inv, M, Rvir, "gaussian")
+    )
+    optresl = iminuit.minimize(
+        cost, [np.log(10)], args=(obs, c_inv, M, Rvir, "lorentz")
+    )
 
     plt.scatter(np.exp(cvirs), bl)
     plt.scatter(np.exp(cvirs), b)
-    plt.axvline(cvir, c='g', label='actual cvir')
-    plt.axvline(np.exp(optres.x), c='r', label='optimised cvir')
-    plt.axvline(np.exp(optresl.x), c='r', label='optimised lorentz cvir')
-    plt.axvline(np.exp(cvirs)[np.argmin(b)], label='least chisq cvir')
-    plt.axvline(np.exp(cvirs)[np.argmin(bl)], label='least chisq lorentz cvir')
+    plt.axvline(cvir, c="g", label="actual cvir")
+    plt.axvline(np.exp(optres.x), c="r", label="optimised cvir")
+    plt.axvline(np.exp(optresl.x), c="r", label="optimised lorentz cvir")
+    plt.axvline(np.exp(cvirs)[np.argmin(b)], label="least chisq cvir")
+    plt.axvline(np.exp(cvirs)[np.argmin(bl)], label="least chisq lorentz cvir")
     # plt.ylim(0, 50)
     # plt.xlim(0, 30)
 
     plt.title(f"Halo Mass: {np.log10(M):.2f}")
-    plt.legend(prop={'size': 13})
+    plt.legend(prop={"size": 13})
 
 plt.savefig("figures/fits_10e11.png")

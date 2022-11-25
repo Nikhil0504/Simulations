@@ -55,30 +55,30 @@ def cinv(obs):
 
 
 @njit(parallel=True)
-def chisq(obs, model, cinv, func='gaussian'):
+def chisq(obs, model, cinv, func="gaussian"):
     residual = obs - model
     # chis = np.dot(residual, np.dot(cinv, residual))
     # chis = np.dot(residual, np.dot(cinv, np.transpose(residual)))
     cost = 0
     # residual ** 2 * cinv for every bin
     for bin in range(len(residual)):
-        if func == 'gaussian':
+        if func == "gaussian":
             dummy = (residual[bin] ** 2) * cinv[bin, bin]
-        elif func == 'lorentz':
+        elif func == "lorentz":
             dummy = np.log(1 + ((residual[bin] ** 2) * cinv[bin, bin]))
-        elif func == 'abs':
+        elif func == "abs":
             # dummy = np.abs(residual[bin]) * np.sqrt(cinv[bin, bin])
-            c = np.linalg.inv(np.diag(0.25*obs))
+            c = np.linalg.inv(np.diag(0.25 * obs))
             dummy = np.abs(residual[bin]) * c[bin, bin]
         # print(dummy)
-        cost += dummy #type: ignore
+        cost += dummy  # type: ignore
     # print(f"Chis numpy: {chis}")
     # print(f"Chis 2: {chis2}\n")
     return cost
 
 
-@jit() 
-def cost(lncvir, obs, cinv, M, Rvir, func='gaussian'):  # theta is Rs, M, Rvir
+@jit()
+def cost(lncvir, obs, cinv, M, Rvir, func="gaussian"):  # theta is Rs, M, Rvir
     if np.exp(lncvir) < 0:
         Cost = np.inf
     else:

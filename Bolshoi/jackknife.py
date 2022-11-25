@@ -68,6 +68,6 @@ for loc in locations:
     # plt.axvspan(Rvir, bins2[-1], color='gray', alpha=0.3)
     plt.xlabel(r"$r (\mathrm{Mpc}/h)$")
     plt.ylabel(r"$\rho (M_{\odot} h^2 / \mathrm{Mpc}^3)$")
-    plt.legend(loc="upper right", prop={'size': 13})
+    plt.legend(loc="upper right", prop={"size": 13})
 
 plt.savefig(f"figures/4_jacks_2.png")
