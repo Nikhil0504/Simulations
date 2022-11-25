@@ -157,3 +157,9 @@ def arrays(arr, X, Y, Z, i):
             np.where((array1[:, 0] > 0) & (array1[:, 1] < 0) & (array1[:, 2] < 0))[0],
             axis=0,
         )
+
+def se_jack(jacks, meanjk, num):
+    if jacks.ndim == 1:
+        return np.sqrt(np.sum(np.square(jacks - meanjk), axis=0) * (num-1)/num)
+    else:
+        return np.sqrt(np.sum(np.square(jacks - meanjk[:, None]), axis=1) * (num-1)/num)
