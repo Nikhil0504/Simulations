@@ -78,23 +78,16 @@ def chisq(obs, model, cinv, func='gaussian'):
 
 
 @jit() 
-def cost(lncvir, obs, cinv, M, Rvir, index='gaussian'):  # theta is Rs, M, Rvir
+def cost(lncvir, obs, cinv, M, Rvir, func='gaussian'):  # theta is Rs, M, Rvir
     if np.exp(lncvir) < 0:
         Cost = np.inf
     else:
         Rs = Rvir / np.exp(lncvir)
         # print(Rs)
         _, model = rho_r(Rs, M, Rvir)
-        Cost = chisq(obs, model, cinv, index)
+        Cost = chisq(obs, model, cinv, func)
     # print(index)
-    if index == 0:
-        # print(np.log(chis))
-        return Cost
-    elif index == 1:
-        # print('log chisq', np.log(1 + chis), 'cvir', np.exp(lncvir))
-        return Cost
-    elif index == 2:
-        return Cost
+    return Cost
 
 
 @jit(nopython=True, parallel=True, fastmath=True)
