@@ -48,7 +48,7 @@ def rho_r(Rs, M, Rvir, rmin=1e-2, rmax=1e1, Nbins=25):
     rho_not = rho_o(M, Rvir, Rs)
     return r, rho_not / (term * ((1.0 + term) ** 2.0))
 
-
+@jit()
 def cinv(obs, epsilon, power):
     c = np.diag((epsilon * obs) ** power)
     return np.linalg.inv(c)
