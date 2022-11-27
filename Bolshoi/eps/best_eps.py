@@ -6,7 +6,7 @@ import concurrent.futures
 a = np.arange(9)
 total = None
 
-bins = MASS_BINS[:2]
+bins = MASS_BINS[-2:]
 eps = np.arange(0.01, 0.2, 0.05)
 ses = []
 
@@ -53,7 +53,7 @@ def tst(eps):
                 c_inv = cinv(obs, eps, 2)
 
                 optres = iminuit.minimize(
-                    cost, [np.log(10)], args=(obs, c_inv, M, Rvir, "gaussian")
+                    cost, [np.log(10)], args=(obs, c_inv, M, Rvir, "lorentz")
                 )
                 opts = np.append(opts, np.exp(optres.x))
 
