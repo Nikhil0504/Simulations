@@ -7,7 +7,7 @@ a = np.arange(9)
 total = None
 
 bins = MASS_BINS
-eps = np.arange(0.01, 0.2, 0.01)
+eps = np.arange(0.01, 0.1, 0.01)
 ses = []
 
 # %%
@@ -18,7 +18,7 @@ def tst(eps):
         N_samples = min([len(m_ind), 100])
         r_ind = np.random.choice(m_ind, N_samples, replace=False)
 
-        # print(f"Samples: {N_samples}")
+        print(f"{eps} Samples: {N_samples}")
 
         main = r_ind.reshape(-1, 1)
         _M = data_points[r_ind].reshape(-1, 1)
@@ -61,19 +61,19 @@ def tst(eps):
             # print(opts.shape)
             main = np.column_stack((main, opts))
             opts = np.array([])
-            # print(eps, main.shape)
+            print(eps, main.shape)
         
             
         m_c = np.mean(main[:, 4:], axis=1)
         main = np.column_stack((main, m_c))
-        # print(eps, main.shape)
+        print(eps, main.shape)
         
         if total is None:
             total = main
-            # print(eps, total.shape)
+            print(eps, total.shape)
         else:
             total = np.vstack((total, main))  # type: ignore
-            # print(total.shape)
+            print(eps, total.shape)
     
     jacks = total[:, 4:-1] # type: ignore
     meanjk = total[:, -1] # type: ignore
@@ -92,7 +92,7 @@ def update_ses(s):
 # concurrent.futures.wait(futures)
 
 def start_processing(eps):
-    with concurrent.futures.ProcessPoolExecutor(10) as executor:
+    with concurrent.futures.ProcessPoolExecutor(9) as executor:
         future_proc = {executor.submit(tst, ep) for ep in eps}
         for future in concurrent.futures.as_completed(future_proc):
             update_ses(future.result())
@@ -104,5 +104,5 @@ start_processing(eps)
 # plt.plot(eps, ses)
 mi = np.argmin(ses)
 plt.scatter(eps, ses)
-plt.axvline(float(mi), label=f'Min Eps: {ses[mi]}')
+plt.axvline(eps[mi], label=f'Min Eps: {ses[mi]} -> {eps[mi]}')
 plt.savefig('testing_eps_full.png')
