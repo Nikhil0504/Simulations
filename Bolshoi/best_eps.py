@@ -6,8 +6,8 @@ import concurrent.futures
 a = np.arange(9)
 total = None
 
-bins = MASS_BINS
-eps = np.arange(0.01, 0.1, 0.01)
+bins = MASS_BINS[:2]
+eps = np.arange(0.01, 0.2, 0.05)
 ses = []
 
 # %%
@@ -61,19 +61,19 @@ def tst(eps):
             # print(opts.shape)
             main = np.column_stack((main, opts))
             opts = np.array([])
-            print(eps, main.shape)
+            # print(eps, main.shape)
         
             
         m_c = np.mean(main[:, 4:], axis=1)
         main = np.column_stack((main, m_c))
-        print(eps, main.shape)
+        # print(eps, main.shape)
         
         if total is None:
             total = main
-            print(eps, total.shape)
+            # print(eps, total.shape)
         else:
             total = np.vstack((total, main))  # type: ignore
-            print(eps, total.shape)
+            # print(eps, total.shape)
     
     jacks = total[:, 4:-1] # type: ignore
     meanjk = total[:, -1] # type: ignore
@@ -104,5 +104,8 @@ start_processing(eps)
 # plt.plot(eps, ses)
 mi = np.argmin(ses)
 plt.scatter(eps, ses)
-plt.axvline(eps[mi], label=f'Min Eps: {ses[mi]} -> {eps[mi]}')
-plt.savefig('testing_eps_full.png')
+plt.axvline(eps[mi], label=r'$\sum \frac{(\rho_{mod} - \rho_{data})^2}{{(\epsilon \rho_{data})}^2}$')
+plt.ylabel(r'$< \sigma_{jk} >$')
+plt.xlabel(r'$\epsilon$')
+plt.title(f'Min $\\epsilon$: {eps[mi]}')
+plt.savefig('testing_eps_full_low.png')
