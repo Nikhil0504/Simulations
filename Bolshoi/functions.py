@@ -49,8 +49,8 @@ def rho_r(Rs, M, Rvir, rmin=1e-2, rmax=1e1, Nbins=25):
     return r, rho_not / (term * ((1.0 + term) ** 2.0))
 
 @jit()
-def cinv(obs, epsilon, power):
-    c = np.diag((epsilon * obs) ** power)
+def cinv(obs, epsilon):
+    c = np.diag((epsilon * obs) ** 2)
     return np.linalg.inv(c)
 
 
@@ -67,10 +67,7 @@ def chisq(obs, model, cinv, func="gaussian"):
         elif func == "lorentz":
             dummy = np.log(1 + ((residual[bin] ** 2) * cinv[bin, bin]))
         elif func == "abs":
-            # dummy = np.abs(residual[bin]) * np.sqrt(cinv[bin, bin])
-            # c = np.linalg.inv(np.diag(0.25 * obs))
-            c = cinv
-            dummy = np.abs(residual[bin]) * c[bin, bin]
+            dummy = np.abs(residual[bin]) * np.sqrt(cinv[bin, bin])
         # print(dummy)
         cost += dummy  # type: ignore
     # print(f"Chis numpy: {chis}")
