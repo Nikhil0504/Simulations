@@ -10,7 +10,7 @@ plt.rcParams["legend.fontsize"] = 20
 a = np.arange(9)
 total = None
 
-bins = MASS_BINS[-2:]
+bins = MASS_BINS[:2]
 eps = np.arange(0.01, 0.2, 0.01)
 ses = []
 ep = []
@@ -58,7 +58,7 @@ def tst(eps):
                 c_inv = cinv(obs, eps)
 
                 optres = iminuit.minimize(
-                    cost, [np.log(10)], args=(obs, c_inv, M, Rvir, "abs")
+                    cost, [np.log(10)], args=(obs, c_inv, M, Rvir, "lorentz")
                 )
                 opts = np.append(opts, np.exp(optres.x))
 
@@ -117,4 +117,4 @@ plt.axvline(ep[mi], label=r'$\sum \frac{(\rho_{mod} - \rho_{data})^2}{{(\epsilon
 plt.ylabel(r'$< \sigma_{jk} >$')
 plt.xlabel(r'$\epsilon$')
 plt.title(f'Min $\\epsilon$: {ep[mi]}')
-plt.savefig('eps_abs_high.png')
+plt.savefig('eps_lorentz_low.png')
