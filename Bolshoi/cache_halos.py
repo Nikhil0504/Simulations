@@ -59,4 +59,5 @@ for index in indexes:
     np.savetxt("inds.txt", filesave)
 
 # %%
+#HID,Mvir, Rvir, rho, rho_jk 1-8
 np.savetxt("inds.txt", filesave)

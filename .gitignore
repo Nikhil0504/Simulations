@@ -5,4 +5,4 @@ nohup.out
 test.*
 
 __pycache__
-cache
+cache*/
