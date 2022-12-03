@@ -9,7 +9,7 @@ UPPER_LIMIT = 1e15
 LOWER_LIMIT = 1e11
 
 RADIUS_BINS = np.logspace(-2, 1, BIN_NO + 1)
-MASS_BINS = np.logspace(12, 14, 9)
+MASS_BINS = np.logspace(11, 14, 11)
 
 MASS = 1.35 * (10**8)
 RADIUS = (RADIUS_BINS[1:] + RADIUS_BINS[:-1]) / 2.0
@@ -27,6 +27,8 @@ plt.rcParams["xtick.labelsize"] = 15
 plt.rcParams["ytick.labelsize"] = 15
 plt.rcParams["font.size"] = 25
 plt.rcParams["legend.fontsize"] = 30
+plt.rcParams['xtick.direction'] = 'inout'
+plt.rcParams['ytick.direction'] = 'inout'
 
 
 # PATHS
