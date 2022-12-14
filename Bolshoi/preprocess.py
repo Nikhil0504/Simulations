@@ -2,6 +2,7 @@ from constants import (CACHE_PATH, HALOS_PATH, LOWER_LIMIT, POINTS_PATH,
                        UPPER_LIMIT)
 from imports import np, pd
 
+
 def pre_halo_cat(HP: str, UL: float, LL: float):
     """This method is used for preprocessing the halo catelogs
     downloaded from the CosmoSim website. The halo catelog is
@@ -35,8 +36,8 @@ def pre_halo_cat(HP: str, UL: float, LL: float):
                 l = np.fromstring(line, dtype=np.float32, sep=" ")
                 data = l[10]  # halos
                 check = l[5]  # sub-halos
-            # only get distinct halos and M_vir between 1e11-1e15 and
-            # constrain the Z to a certain point.
+                # only get distinct halos and M_vir between 1e11-1e15 and
+                # constrain the Z to a certain point.
                 if check == -1 and l[19] < 10.0 and UL > data > LL:
                     mvir = np.append(mvir, data)
                     x = np.append(x, l[17])
@@ -53,7 +54,7 @@ def pre_halo_cat(HP: str, UL: float, LL: float):
     np.save(f"{CACHE_PATH}/z_points", z)
 
 
-def pre_part_file(PP: str, chunk_size: int=100000000):
+def pre_part_file(PP: str, chunk_size: int = 100000000):
     """This function is used for preprocessing the particle file
     from CosmoSim. This file is a CSV due to which we use pandas
     chunking function to convert it into a numpy array.
@@ -74,13 +75,14 @@ def pre_part_file(PP: str, chunk_size: int=100000000):
         lines = chunk.to_numpy()
         XYZ = np.vstack((XYZ, lines[:, 1:]))
 
-    np.save(f"{CACHE_PATH}/arr_points",XYZ[1:])
+    np.save(f"{CACHE_PATH}/arr_points", XYZ[1:])
+
 
 def main():
-    """Main function of the script.
-    """
+    """Main function of the script."""
     pre_halo_cat(HALOS_PATH, UPPER_LIMIT, LOWER_LIMIT)
     pre_part_file(POINTS_PATH)
+
 
 if __name__ == "__main__":
     main()

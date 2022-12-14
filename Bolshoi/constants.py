@@ -11,7 +11,7 @@ LOWER_LIMIT = 1e11
 RADIUS_BINS = np.logspace(-2, 1, BIN_NO + 1)
 MASS_BINS = np.logspace(11, 14, 11)
 
-MASS = 1.35 * (10**8) # from Bolshoi website -> Msun/h
+MASS = 1.35 * (10 ** 8)  # from Bolshoi website -> Msun/h
 RADIUS = (RADIUS_BINS[1:] + RADIUS_BINS[:-1]) / 2.0
 
 # PATHS
