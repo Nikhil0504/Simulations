@@ -4,7 +4,7 @@ from constants import *
 from imports import *
 
 st = time.time()
-data_points = np.load(f"{CACHE_PATH}/halofunc_points.npy")
+mvir = np.load(f"{CACHE_PATH}/halofunc_points.npy")
 x = np.load(f"{CACHE_PATH}/x_points.npy")
 y = np.load(f"{CACHE_PATH}/y_points.npy")
 z = np.load(f"{CACHE_PATH}/z_points.npy")
