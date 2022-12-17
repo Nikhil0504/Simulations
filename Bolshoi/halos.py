@@ -1,20 +1,21 @@
-from imports import *
-from functions import *
+from constants import MASS, PERCENT, RADIUS_BINS
+from functions import Volume, compute_R
+from imports import np
 
 
 class Halo:
-    def __init__(self, hid: int, **kwargs):
+    def __init__(self, hid: int, mvir, x, y, z, rvir, rs):
         self.hid = hid
-        self.mvir = kwargs['mvir'][hid]
-        self.x = kwargs['x'][hid]
-        self.y = kwargs['y'][hid]
-        self.z = kwargs['z'][hid]
-        self.rvir = kwargs['rvir'][hid] / 1000
-        self.rs = kwargs['rs'][hid] / 1000
+        self.mvir = mvir[hid]
+        self.x = x[hid]
+        self.y = y[hid]
+        self.z = z[hid]
+        self.rvir = rvir[hid] / 1000
+        self.rs = rs[hid] / 1000
 
     @property
-    def Mvir(self):
-        return np.log10(self.mvir)
+    def Mvir(self, log=True):
+        return np.log10(self.mvir) if log == True else self.mvir
 
     @property
     def coords(self):
@@ -28,21 +29,14 @@ class Halo:
     def Rs(self):
         return self.rs
 
-    @njit(parallel=True)
-    def get_points(self, arr_points) -> np.ndarray:
-        return arr_points[
-            (arr_points[:, 0] < self.x + 10)
-            & (self.x - 10 < arr_points[:, 0])
-            & (arr_points[:, 1] < self.y + 10)
-            & (self.y - 10 < arr_points[:, 1])
-            & (arr_points[:, 2] < self.z + 10)
-            & (self.z - 10 < arr_points[:, 2])
-        ]
+    def distances(self, arr, ind):
+        return compute_R(*self.coords, arr, ind)
     
-    @njit(parallel=True, fastmath=True)
-    def compute_R(self, arr, ind):
-        Arrays = arrays(self.get_points(arr), self.x, self.y, self.z, ind)
-        return np.sqrt((Arrays[:, 0]) ** 2.0 + (Arrays[:, 1]) ** 2.0 + (Arrays[:, 2]) ** 2.0)
-    
+    def densities(self, arr, ind, factor):
+        R = self.distances(arr, ind)
+        pairs, _ = np.histogram(R, bins=RADIUS_BINS)
+        total_mass = np.array(pairs) * MASS * (100 / PERCENT)
 
-    
+        volume = Volume(factor)
+
+        return total_mass / volume
