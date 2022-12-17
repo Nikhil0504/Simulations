@@ -57,7 +57,7 @@ main.shape
 plt.hist(se_jk, bins=20)
 plt.xlim(0, 10)
 plt.xticks(np.arange(0, 11, 1))
-plt.xlabel('$\sigma_{jk}$')
+plt.xlabel('$\\sigma_{jk}$')
 plt.ylabel('N')
 
 # %%
@@ -162,7 +162,7 @@ for i in range(10):
     mi = np.argmin(fi2[i, :])
     plt.subplot(5, 5, i+1)
     plt.scatter(dummy[0:10], fi2[i, :], label=f'{np.log10(MASS_BINS[i])} - {np.log10(MASS_BINS[i+1])}')
-    plt.axvline(dummy[mi], color='r', label=f'Min $\epsilon$ = {dummy[mi]:.2f}')
+    plt.axvline(dummy[mi], color='r', label=f'Min $\\epsilon$ = {dummy[mi]:.2f}')
     plt.ylabel(r'$< \sigma_{jk} >$')
     plt.xlabel(r'$\epsilon$')
     # plt.ylim(0, 2.5)
