@@ -13,9 +13,10 @@ def get_points(x, y, z, arr_points) -> np.ndarray:
         & (z - 10 < arr_points[:, 2])
     ]
 
-@njit(parallel=True, fastmath=True)
+@jit(parallel=True, fastmath=True, forceobj=True)
 def compute_R(x, y, z, arr, ind):
-    Arrays = arrays(get_points(x, y, z, arr), x, y, z, ind)
+    points = get_points(x, y, z, arr)
+    Arrays = arrays(points, x, y, z, ind)
     return np.sqrt(
         (Arrays[:, 0]) ** 2.0 + (Arrays[:, 1]) ** 2.0 + (Arrays[:, 2]) ** 2.0
     )
