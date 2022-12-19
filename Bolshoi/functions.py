@@ -29,6 +29,26 @@ def Volume(factor, bn=25):
         volume.append(vol)
     return np.array(volume)
 
+
+@njit(fastmath=True)
+def rho_o(M, Rvir, Rs):
+    c = Rvir / Rs
+    ln_term = np.log(1.0 + c) - (c / (1.0 + c))
+    rho_not = M / (4.0 * np.pi * (Rs**3.0) * ln_term)
+    return rho_not
+
+
+@njit()
+def rho_r(Rs, M, Rvir, rmin=1e-2, rmax=1e1, Nbins=25):
+    dummy = np.logspace(np.log10(rmin), np.log10(rmax), Nbins + 1)
+    r = (dummy[1:] + dummy[:-1]) / 2.0
+    mask = np.where(r < Rvir)
+    r = r[mask]
+    term = r / Rs
+    rho_not = rho_o(M, Rvir, Rs)
+    return r, rho_not / (term * ((1.0 + term) ** 2.0))
+
+
 @jit()
 def cinv(obs, epsilon):
     c = np.diag((epsilon * obs) ** 2)

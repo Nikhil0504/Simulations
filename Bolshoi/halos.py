@@ -1,5 +1,5 @@
-from constants import MASS, PERCENT, RADIUS_BINS
-from functions import Volume, compute_R
+from constants import BIN_NO, MASS, PERCENT, RADIUS_BINS
+from functions import Volume, compute_R, rho_r
 from imports import np
 
 
@@ -14,8 +14,8 @@ class Halo:
         self.rs = rs[hid] / 1000
 
     @property
-    def Mvir(self, log=True):
-        return np.log10(self.mvir) if log == True else self.mvir
+    def Mvir(self):
+        return self.mvir
 
     @property
     def coords(self):
@@ -40,3 +40,7 @@ class Halo:
         volume = Volume(factor)
 
         return total_mass / volume
+
+    def NFWs(self, Rs):
+        radii, rhos = rho_r(Rs, self.Mvir, self.Rvir, Nbins=BIN_NO)
+        return radii, rhos
