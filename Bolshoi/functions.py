@@ -1,5 +1,5 @@
 from constants import RADIUS_BINS
-from imports import np, njit, jit
+from imports import jit, njit, np
 
 
 @njit(parallel=True)

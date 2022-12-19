@@ -1,6 +1,6 @@
 from constants import BIN_NO, MASS, PERCENT, RADIUS, RADIUS_BINS
 from functions import Volume, cinv, compute_R, cost, rho_r
-from imports import np, jit, iminuit
+from imports import iminuit, jit, np
 
 
 class Halo:
@@ -47,8 +47,11 @@ class Halo:
         radii, rhos = rho_r(Rs, self.Mvir, self.Rvir, Nbins=BIN_NO)
         return radii, rhos
 
-    def minimise_cost(self, arr, ind, factor, eps=0.25, cost_func="gaussian"):
-        den = self.densities(arr, ind, factor)
+    def minimise_cost(self, arr, ind, factor, Den=None, eps=0.25, cost_func="gaussian"):
+        if Den == None:
+            den = self.densities(arr, ind, factor)
+        else:
+            den = Den
 
         mask = np.where(RADIUS < self.Rvir)
         den = den[mask]
