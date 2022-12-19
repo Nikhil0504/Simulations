@@ -1,6 +1,6 @@
-from constants import BIN_NO, MASS, PERCENT, RADIUS_BINS
-from functions import Volume, compute_R, rho_r
-from imports import np
+from constants import BIN_NO, MASS, PERCENT, RADIUS, RADIUS_BINS
+from functions import Volume, cinv, compute_R, cost, rho_r
+from imports import np, jit, iminuit
 
 
 class Halo:
@@ -31,7 +31,8 @@ class Halo:
 
     def distances(self, arr, ind):
         return compute_R(*self.coords, arr, ind)
-    
+
+    @jit(fastmath=True, parallel=True, forceobj=True, error_model="numpy")
     def densities(self, arr, ind, factor):
         R = self.distances(arr, ind)
         pairs, _ = np.histogram(R, bins=RADIUS_BINS)
@@ -41,6 +42,19 @@ class Halo:
 
         return total_mass / volume
 
+    @jit(fastmath=True, parallel=True, forceobj=True, error_model="numpy")
     def NFWs(self, Rs):
         radii, rhos = rho_r(Rs, self.Mvir, self.Rvir, Nbins=BIN_NO)
         return radii, rhos
+
+    def minimise_cost(self, arr, ind, factor, eps=0.25, cost_func="gaussian"):
+        den = self.densities(arr, ind, factor)
+
+        mask = np.where(RADIUS < self.Rvir)
+        den = den[mask]
+        c_inv = cinv(den, eps)
+
+        optres = iminuit.minimize(
+            cost, [np.log(10)], args=(den, c_inv, self.Mvir, self.Rvir, cost_func)
+        )
+        return optres.x

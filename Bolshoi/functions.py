@@ -13,6 +13,7 @@ def get_points(x, y, z, arr_points) -> np.ndarray:
         & (z - 10 < arr_points[:, 2])
     ]
 
+
 @jit(parallel=True, fastmath=True, forceobj=True)
 def compute_R(x, y, z, arr, ind):
     points = get_points(x, y, z, arr)
@@ -21,11 +22,14 @@ def compute_R(x, y, z, arr, ind):
         (Arrays[:, 0]) ** 2.0 + (Arrays[:, 1]) ** 2.0 + (Arrays[:, 2]) ** 2.0
     )
 
+
 @jit(fastmath=True)
 def Volume(factor, bn=25):
     volume = []
     for i in range(bn):
-        vol = factor * 4.0 / 3.0 * np.pi * (RADIUS_BINS[i + 1] ** 3 - RADIUS_BINS[i] ** 3)
+        vol = (
+            factor * 4.0 / 3.0 * np.pi * (RADIUS_BINS[i + 1] ** 3 - RADIUS_BINS[i] ** 3)
+        )
         volume.append(vol)
     return np.array(volume)
 
@@ -49,10 +53,34 @@ def rho_r(Rs, M, Rvir, rmin=1e-2, rmax=1e1, Nbins=25):
     return r, rho_not / (term * ((1.0 + term) ** 2.0))
 
 
-@jit()
+@jit
 def cinv(obs, epsilon):
     c = np.diag((epsilon * obs) ** 2)
     return np.linalg.inv(c)
+
+
+@njit(parallel=True)
+def chisq(obs, model, cinv, func="gaussian"):
+    residual = obs - model
+    cost = 0
+    # residual ** 2 * cinv for every bin
+    for bin in range(len(residual)):
+        if func == "gaussian":
+            dummy = (residual[bin] ** 2) * cinv[bin, bin]
+        elif func == "lorentz":
+            dummy = np.log(1 + ((residual[bin] ** 2) * cinv[bin, bin]))
+        elif func == "abs":
+            dummy = np.abs(residual[bin]) * np.sqrt(cinv[bin, bin])
+        cost += dummy  # type: ignore
+    return cost
+
+
+@jit
+def cost(lncvir, obs, cinv, M, Rvir, func="gaussian"):  # theta is Rs, M, Rvir
+    Rs = Rvir / np.exp(lncvir)
+    _, model = rho_r(Rs, M, Rvir)
+    Cost = chisq(obs, model, cinv, func)
+    return Cost
 
 
 def arrays(array: np.ndarray, X: int, Y: int, Z: int, i: int) -> np.ndarray:  # type: ignore
