@@ -43,21 +43,18 @@ class Halo:
         return total_mass / volume
 
     @jit(fastmath=True, parallel=True, forceobj=True, error_model="numpy")
-    def NFWs(self, Rs):
-        radii, rhos = rho_r(Rs, self.Mvir, self.Rvir, Nbins=BIN_NO)
+    def NFWs(self, Rs, mask):
+        radii, rhos = rho_r(Rs, self.Mvir, self.Rvir, mask, Nbins=BIN_NO)
         return radii, rhos
 
-    def minimise_cost(self, arr, ind, factor, Den=None, eps=0.25, cost_func="gaussian"):
-        if Den == None:
-            den = self.densities(arr, ind, factor)
-        else:
-            den = Den
+    def minimise_cost(self, Den=[], eps=0.25, cost_func="gaussian"):
+        den = Den
 
-        mask = np.where(RADIUS < self.Rvir)
+        mask = np.where((RADIUS < self.Rvir) & (den > 0))
         den = den[mask]
         c_inv = cinv(den, eps)
 
         optres = iminuit.minimize(
-            cost, [np.log(10)], args=(den, c_inv, self.Mvir, self.Rvir, cost_func)
+            cost, [np.log(10)], args=(den, c_inv, self.Mvir, self.Rvir, mask, cost_func)
         )
         return optres.x

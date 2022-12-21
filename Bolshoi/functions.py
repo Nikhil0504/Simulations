@@ -3,7 +3,7 @@ from imports import jit, njit, np
 
 
 @njit(parallel=True)
-def get_points(x, y, z, arr_points) -> np.ndarray:
+def get_points(x: float, y: float, z: float, arr_points: np.ndarray) -> np.ndarray:
     return arr_points[
         (arr_points[:, 0] < x + 10)
         & (x - 10 < arr_points[:, 0])
@@ -43,10 +43,9 @@ def rho_o(M, Rvir, Rs):
 
 
 @njit()
-def rho_r(Rs, M, Rvir, rmin=1e-2, rmax=1e1, Nbins=25):
+def rho_r(Rs, M, Rvir, mask, rmin=1e-2, rmax=1e1, Nbins=25):
     dummy = np.logspace(np.log10(rmin), np.log10(rmax), Nbins + 1)
     r = (dummy[1:] + dummy[:-1]) / 2.0
-    mask = np.where(r < Rvir)
     r = r[mask]
     term = r / Rs
     rho_not = rho_o(M, Rvir, Rs)
@@ -76,9 +75,12 @@ def chisq(obs, model, cinv, func="gaussian"):
 
 
 @jit
-def cost(lncvir, obs, cinv, M, Rvir, func="gaussian"):  # theta is Rs, M, Rvir
+def cost(lncvir, obs, cinv, M, Rvir, mask, func="gaussian"):  # theta is Rs, M, Rvir
     Rs = Rvir / np.exp(lncvir)
-    _, model = rho_r(Rs, M, Rvir)
+    # if lncvir < 0:
+    #     return np.inf
+    # Rs = Rvir / lncvir
+    _, model = rho_r(Rs, M, Rvir, mask)
     Cost = chisq(obs, model, cinv, func)
     return Cost
 
@@ -134,4 +136,13 @@ def arrays(array: np.ndarray, X: int, Y: int, Z: int, i: int) -> np.ndarray:  # 
             array1,
             np.where((array1[:, 0] > 0) & (array1[:, 1] < 0) & (array1[:, 2] < 0))[0],
             axis=0,
+        )
+
+
+def se_jack(jacks, meanjk, num):
+    if jacks.ndim == 1:
+        return np.sqrt(np.sum(np.square(jacks - meanjk), axis=0) * (num - 1) / num)
+    else:
+        return np.sqrt(
+            np.sum(np.square(jacks - meanjk[:, None]), axis=1) * (num - 1) / num
         )
