@@ -1,6 +1,7 @@
 import time
 
 from constants import *
+from functions import *
 from imports import *
 
 st = time.time()
