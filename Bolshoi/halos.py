@@ -1,5 +1,5 @@
-from constants import BIN_NO, MASS, PERCENT, RADIUS, RADIUS_BINS
-from functions import Volume, cinv, compute_R, cost, rho_r
+from constants import BIN_NO, MASS, PERCENT, RADIUS, RADIUS_BINS, VOLUME
+from functions import cinv, compute_R, cost, rho_r
 from imports import iminuit, jit, np
 
 
@@ -38,7 +38,7 @@ class Halo:
         pairs, _ = np.histogram(R, bins=RADIUS_BINS)
         total_mass = np.array(pairs) * MASS * (100 / PERCENT)
 
-        volume = Volume(factor)
+        volume = factor * VOLUME
 
         return total_mass / volume
 

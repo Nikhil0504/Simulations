@@ -23,17 +23,6 @@ def compute_R(x, y, z, arr, ind):
     )
 
 
-@jit(fastmath=True)
-def Volume(factor, bn=25):
-    volume = []
-    for i in range(bn):
-        vol = (
-            factor * 4.0 / 3.0 * np.pi * (RADIUS_BINS[i + 1] ** 3 - RADIUS_BINS[i] ** 3)
-        )
-        volume.append(vol)
-    return np.array(volume)
-
-
 @njit(fastmath=True)
 def rho_o(M, Rvir, Rs):
     c = Rvir / Rs
