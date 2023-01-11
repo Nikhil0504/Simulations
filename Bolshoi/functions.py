@@ -135,3 +135,23 @@ def se_jack(jacks, meanjk, num):
         return np.sqrt(
             np.sum(np.square(jacks - meanjk[:, None]), axis=1) * (num - 1) / num
         )
+
+
+def remove_outliers(array, sigma=3):
+    # Removes outliers within 3 sigma
+    upper_boundary = np.mean(array) + sigma * np.std(array)
+    lower_boundary = np.mean(array) - sigma * np.std(array)
+    mask = np.where((lower_boundary < array) & (upper_boundary > array))
+    return array[mask]
+
+
+@njit(fastmath=True)
+def remove_outliers_2(array, th1=0.25, th2=0.75):
+    # Uses IQR methods
+    q1 = np.quantile(array, th1)
+    q3 = np.quantile(array, th2)
+    iqr = q3 - q1
+    upper_boundary = q3 + 1.5 * iqr
+    lower_boundary = q1 - 1.5 * iqr
+    mask = np.where((lower_boundary < array) & (upper_boundary > array))
+    return array[mask]
