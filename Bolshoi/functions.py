@@ -1,4 +1,4 @@
-from constants import RADIUS_BINS
+from constants import RADIUS
 from imports import jit, njit, np
 
 
@@ -32,10 +32,8 @@ def rho_o(M, Rvir, Rs):
 
 
 @njit()
-def rho_r(Rs, M, Rvir, mask, rmin=1e-2, rmax=1e1, Nbins=25):
-    dummy = np.logspace(np.log10(rmin), np.log10(rmax), Nbins + 1)
-    r = (dummy[1:] + dummy[:-1]) / 2.0
-    r = r[mask]
+def rho_r(Rs, M, Rvir, mask):
+    r = RADIUS[mask]
     term = r / Rs
     rho_not = rho_o(M, Rvir, Rs)
     return r, rho_not / (term * ((1.0 + term) ** 2.0))

@@ -2,6 +2,8 @@ from constants import BIN_NO, MASS, PERCENT, RADIUS, RADIUS_BINS, VOLUME
 from functions import cinv, compute_R, cost, rho_r
 from imports import iminuit, jit, np
 
+import scipy.optimize as so
+
 
 class Halo:
     def __init__(self, hid: int, mvir, x, y, z, rvir, rs):
@@ -44,7 +46,7 @@ class Halo:
 
     @jit(fastmath=True, parallel=True, forceobj=True, error_model="numpy")
     def NFWs(self, Rs, mask):
-        radii, rhos = rho_r(Rs, self.Mvir, self.Rvir, mask, Nbins=BIN_NO)
+        radii, rhos = rho_r(Rs, self.Mvir, self.Rvir, mask)
         return radii, rhos
 
     def minimise_cost(self, Den=[], eps=0.25, cost_func="gaussian"):
@@ -54,7 +56,10 @@ class Halo:
         den = den[mask]
         c_inv = cinv(den, eps)
 
+        # optres = so.minimize(
+            # cost, [np.log(10)], args=(den, c_inv, self.Mvir, self.Rvir, mask, cost_func), method='Nelder-Mead', bounds=[(np.log(1e-50), np.log(50))]
+        # )
         optres = iminuit.minimize(
-            cost, [np.log(10)], args=(den, c_inv, self.Mvir, self.Rvir, mask, cost_func)
+            cost, [np.log(10)], args=(den, c_inv, self.Mvir, self.Rvir, mask, cost_func), method='simplex'
         )
         return optres.x
