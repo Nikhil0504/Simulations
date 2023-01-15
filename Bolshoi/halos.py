@@ -1,5 +1,5 @@
-from constants import BIN_NO, MASS, PERCENT, RADIUS, RADIUS_BINS, VOLUME
-from functions import cinv, compute_R, cost, rho_r
+from constants import MASS, PERCENT, RADIUS, RADIUS_BINS, VOLUME
+from functions import compute_R, cost, rho_r
 from imports import iminuit, jit, np
 
 import scipy.optimize as so
@@ -54,12 +54,11 @@ class Halo:
 
         mask = np.where((RADIUS < self.Rvir) & (den > 0))
         den = den[mask]
-        c_inv = cinv(den, eps)
 
         # optres = so.minimize(
-            # cost, [np.log(10)], args=(den, c_inv, self.Mvir, self.Rvir, mask, cost_func), method='Nelder-Mead', bounds=[(np.log(1e-50), np.log(50))]
+        #     cost, [np.log(10)], args=(den, eps, self.Mvir, self.Rvir, mask, cost_func), method='Nelder-Mead', bounds=[(np.log(1e-50), np.log(50))]
         # )
         optres = iminuit.minimize(
-            cost, [np.log(10)], args=(den, c_inv, self.Mvir, self.Rvir, mask, cost_func), method='simplex'
+            cost, [np.log(10)], args=(den, eps, self.Mvir, self.Rvir, mask, cost_func), method='simplex', bounds=(np.log(1e-50), np.log(50))
         )
         return optres.x

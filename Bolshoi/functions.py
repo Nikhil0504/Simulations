@@ -39,36 +39,33 @@ def rho_r(Rs, M, Rvir, mask):
     return r, rho_not / (term * ((1.0 + term) ** 2.0))
 
 
-@jit
-def cinv(obs, epsilon):
-    c = np.diag((epsilon * obs) ** 2)
-    return np.linalg.inv(c)
+# @jit
+# def cinv(obs, epsilon):
+#     c = np.diag((epsilon * obs) ** 2)
+#     return np.linalg.inv(c)
 
 
-@njit(parallel=True)
-def chisq(obs, model, cinv, func="gaussian"):
+@njit(parallel=True, fastmath=True)
+def chisq(obs, model, epsilon, func="gaussian"):
     residual = obs - model
-    cost = 0
     # residual ** 2 * cinv for every bin
-    for bin in range(len(residual)):
-        if func == "gaussian":
-            dummy = (residual[bin] ** 2) * cinv[bin, bin]
-        elif func == "lorentz":
-            dummy = np.log(1 + ((residual[bin] ** 2) * cinv[bin, bin]))
-        elif func == "abs":
-            dummy = np.abs(residual[bin]) * np.sqrt(cinv[bin, bin])
-        cost += dummy  # type: ignore
-    return cost
+    if func == "gaussian":
+        return np.sum(np.square(residual) / np.square((epsilon * obs)))
+    elif func == "lorentz":
+        temp = np.square(residual) / np.square((epsilon * obs))
+        return np.sum(np.log(1 + temp))
+    elif func == 'abs':
+        return np.sum(np.abs(residual) / ((epsilon * obs)))
 
 
 @jit
-def cost(lncvir, obs, cinv, M, Rvir, mask, func="gaussian"):  # theta is Rs, M, Rvir
+def cost(lncvir, obs, epsilon, M, Rvir, mask, func="gaussian"):  # theta is Rs, M, Rvir
     Rs = Rvir / np.exp(lncvir)
     # if lncvir < 0:
     #     return np.inf
     # Rs = Rvir / lncvir
     _, model = rho_r(Rs, M, Rvir, mask)
-    Cost = chisq(obs, model, cinv, func)
+    Cost = chisq(obs, model, epsilon, func)
     return Cost
 
 
