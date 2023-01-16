@@ -13,7 +13,7 @@ MASS_BINS = np.logspace(11, 14, 11)
 
 MASS = 1.35 * (10**8)  # from Bolshoi website -> Msun/h
 RADIUS = (RADIUS_BINS[1:] + RADIUS_BINS[:-1]) / 2.0
-VOLUME = 4./3. * np.pi * np.diff(RADIUS_BINS ** 3)
+VOLUME = 4. / 3. * np.pi * np.diff(RADIUS_BINS**3)
 
 # PATHS
 if platform.system() == "Darwin":

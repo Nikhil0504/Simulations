@@ -1,11 +1,12 @@
+import scipy.optimize as so
+
 from constants import MASS, PERCENT, RADIUS, RADIUS_BINS, VOLUME
 from functions import compute_R, cost, rho_r
 from imports import iminuit, jit, np
 
-import scipy.optimize as so
-
 
 class Halo:
+
     def __init__(self, hid: int, mvir, x, y, z, rvir, rs):
         self.hid = hid
         self.mvir = mvir[hid]
@@ -59,7 +60,9 @@ class Halo:
         # optres = so.minimize(
         #     cost, [np.log(10)], args=(den, eps, self.Mvir, self.Rvir, mask, cost_func), method='Nelder-Mead', bounds=[(np.log(1e-50), np.log(50))]
         # )
-        optres = iminuit.minimize(
-            cost, [np.log(10)], args=(den, eps, self.Mvir, self.Rvir, mask, cost_func), method='simplex', bounds=(np.log(1e-50), np.log(50))
-        )
+        optres = iminuit.minimize(cost, [np.log(10)],
+                                  args=(den, eps, self.Mvir, self.Rvir, mask,
+                                        cost_func),
+                                  method='simplex',
+                                  bounds=(np.log(1e-50), np.log(50)))
         return optres.x

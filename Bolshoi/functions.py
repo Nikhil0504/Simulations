@@ -1,27 +1,26 @@
+from typing import Union
+
 from constants import RADIUS
 from imports import jit, njit, np
-from typing import Union
 
 
 @njit(parallel=True)
-def get_points(x: float, y: float, z: float, arr_points: np.ndarray) -> np.ndarray:
-    return arr_points[
-        (arr_points[:, 0] < x + 10)
-        & (x - 10 < arr_points[:, 0])
-        & (arr_points[:, 1] < y + 10)
-        & (y - 10 < arr_points[:, 1])
-        & (arr_points[:, 2] < z + 10)
-        & (z - 10 < arr_points[:, 2])
-    ]
+def get_points(x: float, y: float, z: float,
+               arr_points: np.ndarray) -> np.ndarray:
+    return arr_points[(arr_points[:, 0] < x + 10) &
+                      (x - 10 < arr_points[:, 0]) &
+                      (arr_points[:, 1] < y + 10) &
+                      (y - 10 < arr_points[:, 1]) &
+                      (arr_points[:, 2] < z + 10) & (z - 10 < arr_points[:, 2])]
 
 
 @jit(parallel=True, fastmath=True, forceobj=True)
-def compute_R(x: float, y:float, z:float, arr:np.ndarray, ind:int) -> np.ndarray:
+def compute_R(x: float, y: float, z: float, arr: np.ndarray,
+              ind: int) -> np.ndarray:
     points = get_points(x, y, z, arr)
     Arrays = arrays(points, x, y, z, ind)
-    return np.sqrt(
-        (Arrays[:, 0]) ** 2.0 + (Arrays[:, 1]) ** 2.0 + (Arrays[:, 2]) ** 2.0
-    )
+    return np.sqrt((Arrays[:, 0])**2.0 + (Arrays[:, 1])**2.0 +
+                   (Arrays[:, 2])**2.0)
 
 
 @njit(fastmath=True)
@@ -37,7 +36,7 @@ def rho_r(Rs, M, Rvir, mask):
     r = RADIUS[mask]
     term = r / Rs
     rho_not = rho_o(M, Rvir, Rs)
-    return r, rho_not / (term * ((1.0 + term) ** 2.0))
+    return r, rho_not / (term * ((1.0 + term)**2.0))
 
 
 # @jit
@@ -60,7 +59,13 @@ def chisq(obs, model, epsilon, func="gaussian"):
 
 
 @jit
-def cost(lncvir, obs, epsilon, M, Rvir, mask, func="gaussian"):  # theta is Rs, M, Rvir
+def cost(lncvir,
+         obs,
+         epsilon,
+         M,
+         Rvir,
+         mask,
+         func="gaussian"):  # theta is Rs, M, Rvir
     Rs = Rvir / np.exp(lncvir)
     # if lncvir < 0:
     #     return np.inf
@@ -70,67 +75,77 @@ def cost(lncvir, obs, epsilon, M, Rvir, mask, func="gaussian"):  # theta is Rs, 
     return Cost
 
 
-def arrays(array: np.ndarray, X: float, Y: float, Z: float, i: int) -> np.ndarray: # type: ignore
+def arrays(array: np.ndarray, X: float, Y: float, Z: float,
+           i: int) -> np.ndarray:  # type: ignore
     array1 = array - [X, Y, Z]
     if i == 1:
         return array1
     elif i == 2:
         return np.delete(
             array1,
-            np.where((array1[:, 0] > 0) & (array1[:, 1] > 0) & (array1[:, 2] > 0))[0],
+            np.where((array1[:, 0] > 0) & (array1[:, 1] > 0) &
+                     (array1[:, 2] > 0))[0],
             axis=0,
         )
     elif i == 3:
         return np.delete(
             array1,
-            np.where((array1[:, 0] < 0) & (array1[:, 1] > 0) & (array1[:, 2] > 0))[0],
+            np.where((array1[:, 0] < 0) & (array1[:, 1] > 0) &
+                     (array1[:, 2] > 0))[0],
             axis=0,
         )
     elif i == 4:
         return np.delete(
             array1,
-            np.where((array1[:, 0] < 0) & (array1[:, 1] < 0) & (array1[:, 2] > 0))[0],
+            np.where((array1[:, 0] < 0) & (array1[:, 1] < 0) &
+                     (array1[:, 2] > 0))[0],
             axis=0,
         )
     elif i == 5:
         return np.delete(
             array1,
-            np.where((array1[:, 0] > 0) & (array1[:, 1] < 0) & (array1[:, 2] > 0))[0],
+            np.where((array1[:, 0] > 0) & (array1[:, 1] < 0) &
+                     (array1[:, 2] > 0))[0],
             axis=0,
         )
     elif i == 6:
         return np.delete(
             array1,
-            np.where((array1[:, 0] > 0) & (array1[:, 1] > 0) & (array1[:, 2] < 0))[0],
+            np.where((array1[:, 0] > 0) & (array1[:, 1] > 0) &
+                     (array1[:, 2] < 0))[0],
             axis=0,
         )
     elif i == 7:
         return np.delete(
             array1,
-            np.where((array1[:, 0] < 0) & (array1[:, 1] > 0) & (array1[:, 2] < 0))[0],
+            np.where((array1[:, 0] < 0) & (array1[:, 1] > 0) &
+                     (array1[:, 2] < 0))[0],
             axis=0,
         )
     elif i == 8:
         return np.delete(
             array1,
-            np.where((array1[:, 0] < 0) & (array1[:, 1] < 0) & (array1[:, 2] < 0))[0],
+            np.where((array1[:, 0] < 0) & (array1[:, 1] < 0) &
+                     (array1[:, 2] < 0))[0],
             axis=0,
         )
     elif i == 9:
         return np.delete(
             array1,
-            np.where((array1[:, 0] > 0) & (array1[:, 1] < 0) & (array1[:, 2] < 0))[0],
+            np.where((array1[:, 0] > 0) & (array1[:, 1] < 0) &
+                     (array1[:, 2] < 0))[0],
             axis=0,
         )
 
 
 def se_jack(jacks, meanjk, num):
     if jacks.ndim == 1:
-        return np.sqrt(np.sum(np.square(jacks - meanjk), axis=0) * (num - 1) / num)
+        return np.sqrt(
+            np.sum(np.square(jacks - meanjk), axis=0) * (num - 1) / num)
     else:
         return np.sqrt(
-            np.sum(np.square(jacks - meanjk[:, None]), axis=1) * (num - 1) / num
-        )
+            np.sum(np.square(jacks - meanjk[:, None]), axis=1) * (num - 1) /
+            num)
 
 
 def remove_outliers(array, sigma=3):
