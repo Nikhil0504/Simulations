@@ -1,4 +1,5 @@
 from typing import Union
+from warnings import warn
 
 from constants import RADIUS
 from imports import jit, njit, np
@@ -39,10 +40,11 @@ def rho_r(Rs, M, Rvir, mask):
     return r, rho_not / (term * ((1.0 + term)**2.0))
 
 
-# @jit
-# def cinv(obs, epsilon):
-#     c = np.diag((epsilon * obs) ** 2)
-#     return np.linalg.inv(c)
+@jit
+def cinv(obs, epsilon):
+    warn('This method is deprecated.', DeprecationWarning, stacklevel=2)
+    c = np.diag((epsilon * obs)**2)
+    return np.linalg.inv(c)
 
 
 @njit(fastmath=True)
