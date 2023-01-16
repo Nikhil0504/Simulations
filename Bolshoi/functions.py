@@ -1,5 +1,6 @@
 from constants import RADIUS
 from imports import jit, njit, np
+from typing import Union
 
 
 @njit(parallel=True)
@@ -15,7 +16,7 @@ def get_points(x: float, y: float, z: float, arr_points: np.ndarray) -> np.ndarr
 
 
 @jit(parallel=True, fastmath=True, forceobj=True)
-def compute_R(x, y, z, arr, ind):
+def compute_R(x: float, y:float, z:float, arr:np.ndarray, ind:int) -> np.ndarray:
     points = get_points(x, y, z, arr)
     Arrays = arrays(points, x, y, z, ind)
     return np.sqrt(
@@ -45,7 +46,7 @@ def rho_r(Rs, M, Rvir, mask):
 #     return np.linalg.inv(c)
 
 
-@njit(parallel=True, fastmath=True)
+@njit(fastmath=True)
 def chisq(obs, model, epsilon, func="gaussian"):
     residual = obs - model
     # residual ** 2 * cinv for every bin
@@ -69,7 +70,7 @@ def cost(lncvir, obs, epsilon, M, Rvir, mask, func="gaussian"):  # theta is Rs, 
     return Cost
 
 
-def arrays(array: np.ndarray, X: int, Y: int, Z: int, i: int) -> np.ndarray:  # type: ignore
+def arrays(array: np.ndarray, X: float, Y: float, Z: float, i: int) -> np.ndarray: # type: ignore
     array1 = array - [X, Y, Z]
     if i == 1:
         return array1

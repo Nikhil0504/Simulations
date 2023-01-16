@@ -14,10 +14,11 @@ class Halo:
         self.z = z[hid]
         self.rvir = rvir[hid] / 1000
         self.rs = rs[hid] / 1000
+        self.cvir = self.rvir / self.rs
 
     @property
     def Mvir(self):
-        return self.mvir
+        return int(self.mvir)
 
     @property
     def coords(self):
