@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Tuple
 from warnings import warn
 
 from constants import RADIUS
@@ -25,7 +25,7 @@ def compute_R(x: float, y: float, z: float, arr: np.ndarray,
 
 
 @njit(fastmath=True)
-def rho_o(M, Rvir, Rs):
+def rho_o(M: float, Rvir: float, Rs: float):
     c = Rvir / Rs
     ln_term = np.log(1.0 + c) - (c / (1.0 + c))
     rho_not = M / (4.0 * np.pi * (Rs**3.0) * ln_term)
@@ -33,7 +33,7 @@ def rho_o(M, Rvir, Rs):
 
 
 @njit()
-def rho_r(Rs, M, Rvir, mask):
+def rho_r(Rs: float, M: float, Rvir: float, mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     r = RADIUS[mask]
     term = r / Rs
     rho_not = rho_o(M, Rvir, Rs)
@@ -48,7 +48,7 @@ def cinv(obs, epsilon):
 
 
 @njit(fastmath=True)
-def chisq(obs, model, epsilon, func="gaussian"):
+def chisq(obs: np.ndarray, model: np.ndarray, epsilon: float, func: str="gaussian"):
     residual = obs - model
     # residual ** 2 * cinv for every bin
     if func == "gaussian":
