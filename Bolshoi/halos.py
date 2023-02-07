@@ -51,7 +51,7 @@ class Halo:
         radii, rhos = rho_r(Rs, self.Mvir, self.Rvir, mask)
         return radii, rhos
 
-    def minimise_cost(self, Den=[], eps=0.25, cost_func="gaussian", lib='iminuit'):
+    def minimise_cost(self, Den=[], eps=0.25, cost_func="gaussian", lib='scipy'):
         den = Den
 
         mask = np.where((RADIUS < self.Rvir) & (den > 0))

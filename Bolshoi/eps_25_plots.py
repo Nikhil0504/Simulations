@@ -12,7 +12,7 @@ def Eps(
     inds: np.ndarray,
     ep: float,
     func: str = "gaussian",
-    lib: str = "iminuit"
+    lib: str = "scipy"
 ) -> np.ndarray:
     main = np.zeros(0)
 
@@ -47,13 +47,13 @@ temp2 = se_jack(main2[:, 1:], np.mean(main2[:, 1:], axis=1), 8)
 temp3 = se_jack(main3[:, 1:], np.mean(main3[:, 1:], axis=1), 8)
 
 # %%
-imain = Eps(inds, 0.10, 'gaussian', 'iminuit')
-imain2 = Eps(inds, 0.10, 'lorentz', 'iminuit')
-imain3 = Eps(inds, 0.10, 'abs', 'iminuit')
+# imain = Eps(inds, 0.10, 'gaussian', 'scipy')
+# imain2 = Eps(inds, 0.10, 'lorentz', 'scipy')
+# imain3 = Eps(inds, 0.10, 'abs', 'scipy')
 
-itemp = se_jack(imain[:, 1:], np.mean(imain[:, 1:], axis=1), 8)
-itemp2 = se_jack(imain2[:, 1:], np.mean(imain2[:, 1:], axis=1), 8)
-itemp3 = se_jack(imain3[:, 1:], np.mean(imain3[:, 1:], axis=1), 8)
+# itemp = se_jack(imain[:, 1:], np.mean(imain[:, 1:], axis=1), 8)
+# itemp2 = se_jack(imain2[:, 1:], np.mean(imain2[:, 1:], axis=1), 8)
+# itemp3 = se_jack(imain3[:, 1:], np.mean(imain3[:, 1:], axis=1), 8)
 
 # %%
 X, Y, y2, y3, y4, y5, y6 = (np.zeros(0) for _ in range(7))
@@ -71,13 +71,13 @@ for i in range(slices.shape[0] - 1):
 X, iy, iy2, iy3, iy4, iy5, iy6 = (np.zeros(0) for _ in range(7))
 
 for i in range(slices.shape[0] - 1):
-    iy = np.append(iy, np.median(itemp[slices[i]: slices[i+1]]))
-    iy3 = np.append(iy3, np.median(itemp2[slices[i]: slices[i+1]]))
-    iy5 = np.append(iy5, np.median(itemp3[slices[i]: slices[i+1]]))
+    iy = np.append(iy, np.mean(temp[slices[i]: slices[i+1]]))
+    iy3 = np.append(iy3, np.mean(temp2[slices[i]: slices[i+1]]))
+    iy5 = np.append(iy5, np.mean(temp3[slices[i]: slices[i+1]]))
 
-    iy2 = np.append(iy2, np.std(imain[slices[i]: slices[i + 1], 0]))
-    iy4 = np.append(iy4, np.std(imain2[slices[i]: slices[i + 1], 0]))
-    iy6 = np.append(iy6, np.std(imain3[slices[i]: slices[i + 1], 0]))
+    iy2 = np.append(iy2, np.std(main[slices[i]: slices[i + 1], 0]))
+    iy4 = np.append(iy4, np.std(main2[slices[i]: slices[i + 1], 0]))
+    iy6 = np.append(iy6, np.std(main3[slices[i]: slices[i + 1], 0]))
 
     X = np.append(X, np.mean([MASS_BINS[i], MASS_BINS[i + 1]]))
 
@@ -86,23 +86,23 @@ plt.style.use(['science'])
 
 fig = plt.figure(figsize=(5, 5), dpi=150)
 
-plt.plot(X, Y, 'g--', linewidth=1.5, label='_Jack-knife Gaussian')
-plt.plot(X, y2, 'r--', linewidth=1.5, label='_Intrinsic Gaussian')
+plt.plot(X, Y, '#008BF8', linestyle='--', linewidth=1.5, label='_Jack-knife Gaussian')
+plt.plot(X, y2, '#DC0073', linestyle='--', linewidth=1.5, label='_Intrinsic Gaussian')
 
-plt.plot(X, y3, 'g', linestyle='dotted', linewidth=1.5, label='_Jack-knife Lorentz')
-plt.plot(X, y4, 'r', linestyle='dotted', linewidth=1.5, label='_Intrinsic Lorentz')
+plt.plot(X, y3, '#008BF8', linestyle='dotted', linewidth=1.5, label='_Jack-knife Lorentz')
+plt.plot(X, y4, '#DC0073', linestyle='dotted', linewidth=1.5, label='_Intrinsic Lorentz')
 
-plt.plot(X, iy, '#008BF8', linestyle='--', linewidth=1.5, label='_Jack-knife Gaussian Iminuit')
-plt.plot(X, iy2, '#DC0073', linestyle='--', linewidth=1.5, label='_Intrinsic Gaussian Iminuit')
+# plt.plot(X, iy, '#008BF8', linestyle='--', linewidth=1.5, label='_Jack-knife Gaussian Mean')
+# plt.plot(X, iy2, '#DC0073', linestyle='--', linewidth=1.5, label='_Intrinsic Gaussian Mean')
 
-plt.plot(X, iy3, '#008BF8', linestyle='dotted', linewidth=1.5, label='_Jack-knife Lorentz Iminuit')
-plt.plot(X, iy4, '#DC0073', linestyle='dotted', linewidth=1.5, label='_Intrinsic Lorentz Iminuit')
+# plt.plot(X, iy3, '#008BF8', linestyle='dotted', linewidth=1.5, label='_Jack-knife Lorentz Mean')
+# plt.plot(X, iy4, '#DC0073', linestyle='dotted', linewidth=1.5, label='_Intrinsic Lorentz Mean')
 
-plt.plot(X, y5, 'g', linestyle='-', linewidth=1.5, label='_Jack-knife Absolute')
-plt.plot(X, y6, 'r-', linewidth=1.5, label='_Intrinsic Absolute')
+plt.plot(X, y5, '#008BF8', linestyle='-', linewidth=1.5, label='_Jack-knife Absolute')
+plt.plot(X, y6, '#DC0073', linestyle='-', linewidth=1.5, label='_Intrinsic Absolute')
 
-plt.plot(X, iy5, '#008BF8', linestyle='-', linewidth=1.5, label='_Jack-knife Absolute Iminuit')
-plt.plot(X, iy6, '#DC0073', linestyle='-', linewidth=1.5, label='_Intrinsic Absolute Iminuit')
+# plt.plot(X, iy5, '#008BF8', linestyle='-', linewidth=1.5, label='_Jack-knife Absolute Mean')
+# plt.plot(X, iy6, '#DC0073', linestyle='-', linewidth=1.5, label='_Intrinsic Absolute Mean')
 
 plt.plot([], [], '--', color='#1E152A', linewidth=1.5, label='Gaussian')
 plt.plot([], [], ':', color='#1E152A', linewidth=1.5, label='Lorentz')
@@ -119,54 +119,50 @@ plt.legend()
 plt.savefig('1.png')
 plt.clf()
 
-# %%
-plt.figure(figsize=(20,16), dpi=150)
-# plt.tight_layout()
-for i in range(slices.shape[0] - 1):
-    print(i)
-    plt.subplot(5, 5, i+1)
-    # plt.title(f'{ep * 100} \%')
-    new = itemp2[slices[i]: slices[i + 1]]
-    new2 = temp2[slices[i]: slices[i + 1]]
+# # %%
+# plt.figure(figsize=(20,16), dpi=150)
+# # plt.tight_layout()
+# for i in range(slices.shape[0] - 1):
+#     print(i)
+#     plt.subplot(5, 5, i+1)
+#     # plt.title(f'{ep * 100} \%')
+#     new = itemp2[slices[i]: slices[i + 1]]
+#     new2 = temp2[slices[i]: slices[i + 1]]
 
 
-    tempd = y3/iy3
+#     tempd = y3/iy3
 
-    plt.hist(new, facecolor=(0.86, 0, 0.45, 0.7), hatch='//', histtype='stepfilled', edgecolor=(0.12, 0.08, 0.16, 0.8), bins='fd', zorder=10)
-    plt.hist(new2, facecolor=(0.44, 0.68, 0.43, 0.65), hatch='.', histtype='stepfilled', edgecolor=(0.12, 0.08, 0.16, 0.8), bins='fd')
+#     plt.hist(new, facecolor=(0.86, 0, 0.45, 0.7), hatch='//', histtype='stepfilled', edgecolor=(0.12, 0.08, 0.16, 0.8), bins='fd', zorder=10)
+#     plt.hist(new2, facecolor=(0.44, 0.68, 0.43, 0.65), hatch='.', histtype='stepfilled', edgecolor=(0.12, 0.08, 0.16, 0.8), bins='fd')
 
-    if i == 0:
-        plt.hist([], facecolor=(0.86, 0, 0.45, 0.7), hatch='//', histtype='stepfilled', edgecolor=(0.12, 0.08, 0.16, 0.8), label='Iminuit')
-        plt.hist([], facecolor=(0.44, 0.68, 0.43, 0.65), hatch='..', histtype='stepfilled', edgecolor=(0.12, 0.08, 0.16, 0.8), label='Scipy')
+#     if i == 0:
+#         plt.hist([], facecolor=(0.86, 0, 0.45, 0.7), hatch='//', histtype='stepfilled', edgecolor=(0.12, 0.08, 0.16, 0.8), label='Iminuit')
+#         plt.hist([], facecolor=(0.44, 0.68, 0.43, 0.65), hatch='..', histtype='stepfilled', edgecolor=(0.12, 0.08, 0.16, 0.8), label='Scipy')
     
-    plt.plot([], color='black', label=f'\% Disagreement: {tempd[i]:1.3f}')
+#     plt.plot([], color='black', label=f'\% Disagreement: {tempd[i]:1.3f}')
 
-    plt.legend(prop={'size': 8})
-plt.savefig('2.png')
-plt.clf()
+#     plt.legend(prop={'size': 8})
+# plt.savefig('2.png')
+# plt.clf()
 
-# %%
-aaah = itemp2[slices[0]: slices[1]]
-np.where(aaah > 1)
-# inds[slices[2]: slices[3]][161][0], np.log10(inds[slices[2]: slices[3]][161][1])
 
 # %%
-plt.style.use(['science', 'scatter'])
+# plt.style.use(['science', 'scatter'])
 
-fig = plt.figure(figsize=(5, 5), dpi=300)
+# fig = plt.figure(figsize=(5, 5), dpi=300)
 
-plt.plot(X, Y/iy, label='Gaussian')
-plt.plot(X, y3/iy3, label='Lorentz')
-plt.plot(X, y5/iy5, label='Absolute')
+# plt.plot(X, Y/iy, label='Gaussian')
+# plt.plot(X, y3/iy3, label='Lorentz')
+# plt.plot(X, y5/iy5, label='Absolute')
 
-plt.xlabel('Mass of bin edges')
-plt.ylabel('$Med(\sigma_{\mathrm{jk, scipy}}) - Med(\sigma_{\mathrm{jk, iminuit}}) $')
+# plt.xlabel('Mass of bin edges')
+# plt.ylabel(r'$Med(\sigma_{\mathrm{jk, scipy}}) - <\sigma_{\mathrm{jk, iminuit}}>$')
 
-plt.xscale('log')
+# plt.xscale('log')
 
-plt.ylim((0.95, 1.06))
+# # plt.ylim((0.95, 1.06))
 
-plt.legend()
-# plt.show()
-plt.savefig('3.png')
-plt.clf()
+# plt.legend()
+# # plt.show()
+# plt.savefig('3.png')
+# plt.clf()
