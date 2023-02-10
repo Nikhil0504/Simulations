@@ -1,6 +1,7 @@
-import sys
-from loading import *
+from scipy.stats import median_abs_deviation as mad
+
 from halos import Halo
+from loading import *
 
 plt.style.use(["science", "scatter"])
 
@@ -39,11 +40,8 @@ epss = np.arange(0.01, 0.26, 0.01)
 
 mean_se = np.array([])
 
-func = sys.argv[-1]
-print(func)
-
 for ep in epss:
-    main = Eps(inds, ep, func, 'scipy')
+    main = Eps(inds, ep)
     temp = se_jack(main[:, 1:], np.mean(main[:, 1:], axis=1), 8)
 
     slices = np.array(
@@ -53,16 +51,15 @@ for ep in epss:
 
     for i in range(10):
         new = temp[slices[i]:slices[i + 1]]
-        medians = np.append(medians, np.median(new))
+        medians = np.append(medians, 1.4826 * mad(new))
 
     if mean_se.size == 0:
         mean_se = medians
     else:
         mean_se = np.vstack((mean_se, medians))
 
-    print(f"{func} {ep} done.")
 
-np.savetxt(f"out/mean_se_{func}_constrains.out", mean_se)
+np.savetxt(f"out/mean_se_gaussian_mad_constrains.out", mean_se)
 
 ##########################
 plt.style.use(["science"])
@@ -70,8 +67,6 @@ plt.style.use(["science"])
 MASS2 = (MASS_BINS[1:] + MASS_BINS[:-1]) / 2.0
 
 fig = plt.figure(figsize=(17, 5))
-
-plt.suptitle(f"{func.capitalize()} Function", y=0.93)
 
 for i in range(10):
     plt.subplot(2, 5, i + 1)
@@ -81,8 +76,8 @@ for i in range(10):
 
     plt.ylim(np.mean(mean_se[:, i]) - 0.02, np.mean(mean_se[:, i]) + 0.02)
     plt.xlabel(r"$\epsilon$")
-    plt.ylabel(r"$Med(\sigma_{jk})$")
+    plt.ylabel(r"$MAD(\sigma_{jk})$")
 
     plt.legend(prop={"size": 8})
 
-plt.savefig(f"figures/eps_{func}_constrains.jpg", dpi=150)
+plt.savefig(f"figures/eps_gaussian_mad_constrains.jpg", dpi=150)
