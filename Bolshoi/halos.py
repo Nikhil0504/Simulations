@@ -19,7 +19,7 @@ class Halo:
 
     @property
     def Mvir(self):
-        return int(self.mvir)
+        return self.mvir
 
     @property
     def coords(self):
