@@ -1,7 +1,7 @@
 from typing import Tuple
 from warnings import warn
 
-from constants import RADIUS
+from constants import PART_MASS, PERCENT, RADIUS, VOLUME
 from imports import jit, njit, np
 
 
@@ -48,11 +48,16 @@ def cinv(obs, epsilon):
 
 
 @njit(fastmath=True)
-def chisq(obs: np.ndarray, model: np.ndarray, epsilon: float, func: str="gaussian"):
-    residual = obs - model
+def chisq(obs: np.ndarray, model: np.ndarray, epsilon: float, mask, func: str="gaussian"):
+    Ndata = obs * (VOLUME[mask] / PART_MASS)
+    Nmodel = model * (VOLUME[mask] / PART_MASS)
+    # residual = obs - model
+    residual = Ndata - Nmodel
     # residual ** 2 * cinv for every bin
     if func == "gaussian":
-        return np.sum(np.square(residual) / np.square((epsilon * obs)))
+        # return np.sum(np.square(residual) / np.square((epsilon * obs)))
+        return np.sum(np.square(residual) / (Ndata + np.square((epsilon * Ndata))))
+        # return np.sum(np.square(residual) / (np.square((epsilon * Ndata))))
     elif func == "lorentz":
         temp = np.square(residual) / np.square((epsilon * obs))
         return np.sum(np.log(1 + temp))
@@ -73,7 +78,7 @@ def cost(lncvir,
     #     return np.inf
     # Rs = Rvir / lncvir
     _, model = rho_r(Rs, M, Rvir, mask)
-    Cost = chisq(obs, model, epsilon, func)
+    Cost = chisq(obs, model, epsilon, mask, func)
     return Cost
 
 

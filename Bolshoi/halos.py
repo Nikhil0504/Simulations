@@ -1,6 +1,6 @@
 import scipy.optimize as so
 
-from constants import MASS, PERCENT, RADIUS, RADIUS_BINS, VOLUME
+from constants import PART_MASS, PERCENT, RADIUS, RADIUS_BINS, VOLUME
 from functions import compute_R, cost, rho_r
 from imports import iminuit, jit, np
 
@@ -40,7 +40,7 @@ class Halo:
     def densities(self, arr, ind, factor):
         R = self.distances(arr, ind)
         pairs, _ = np.histogram(R, bins=RADIUS_BINS)
-        total_mass = np.array(pairs) * MASS * (100 / PERCENT)
+        total_mass = np.array(pairs) * PART_MASS * (100 / PERCENT)
 
         volume = factor * VOLUME
 
