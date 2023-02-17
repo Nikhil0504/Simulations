@@ -1,11 +1,11 @@
 from typing import Tuple
 from warnings import warn
 
-from constants import PART_MASS, PERCENT, RADIUS, VOLUME
+from constants import PART_MASS, RADIUS, VOLUME
 from imports import jit, njit, np
 
 
-@njit(parallel=True)
+@njit(parallel=True, nogil=True, cache=True)
 def get_points(x: float, y: float, z: float,
                arr_points: np.ndarray) -> np.ndarray:
     return arr_points[(arr_points[:, 0] < x + 10) &
@@ -49,22 +49,52 @@ def cinv(obs, epsilon):
 
 @njit(fastmath=True)
 def chisq(obs: np.ndarray, model: np.ndarray, epsilon: float, mask, func: str="gaussian"):
+    """
+    Compute the chi-squared statistic for a given 
+    observed and model distribution.
+    
+    Parameters
+    ----------
+    obs : numpy.ndarray, shape (N,)
+        Observed distribution.
+    model : numpy.ndarray, shape (N,)
+        Model distribution.
+    epsilon : float
+        Uncertainty in observed distribution.
+    mask : numpy.ndarray, shape (N,), boolean
+        Boolean mask indicating which indices in `obs` and `model` 
+        to use in the chi-squared calculation.
+    func : str, optional
+        The type of function to use in the chi-squared calculation. 
+        Can be "gaussian", "lorentz", or "abs".
+        Defaults to "gaussian".
+    
+    Returns
+    -------
+    float
+        The computed chi-squared statistic.
+    """
+    # Scale the counts by the volume and particle mass
     Ndata = obs * (VOLUME[mask] / PART_MASS)
     Nmodel = model * (VOLUME[mask] / PART_MASS)
-    # residual = obs - model
+
+    # Compute the residual
     residual = Ndata - Nmodel
-    # residual ** 2 * cinv for every bin
+
+    # Compute the residual squared divided by the error squared
+    denom = Ndata + np.square((epsilon * Ndata))
+
     if func == "gaussian":
-        # return np.sum(np.square(residual) / np.square((epsilon * obs)))
-        return np.sum(np.square(residual) / (Ndata + np.square((epsilon * Ndata))))
-        # return np.sum(np.square(residual) / (np.square((epsilon * Ndata))))
+        chisq = np.sum(np.square(residual) / denom)
     elif func == "lorentz":
-        # temp = np.square(residual) / np.square((epsilon * obs))
-        temp = np.square(residual) / (Ndata + np.square((epsilon * Ndata)))
-        return np.sum(np.log(1 + temp))
+        temp = np.square(residual) / denom
+        chisq = np.sum(np.log(1 + temp))
     elif func == 'abs':
-        return np.sum(np.sqrt(np.square(residual) / (Ndata + np.square((epsilon * Ndata)))))
-        # return np.sum(np.abs(residual) / ((epsilon * obs)))
+        chisq = np.sum(np.sqrt(np.square(residual) / denom))
+    else:
+        chisq = np.inf
+
+    return chisq
 
 
 @jit
@@ -86,6 +116,33 @@ def cost(lncvir,
 
 def arrays(array: np.ndarray, X: float, Y: float, Z: float,
            i: int) -> np.ndarray:
+    """
+    Transform an input array of Cartesian coordinates by 
+    subtracting the coordinates (X,Y,Z) and optionally filtering out certain 
+    rows based on their position relative to the origin.
+    
+    Parameters
+    ----------
+    array : numpy.ndarray, shape (N, 3)
+        Input array of Cartesian coordinates.
+    X : float
+        The X-coordinate of the origin to subtract.
+    Y : float
+        The Y-coordinate of the origin to subtract.
+    Z : float
+        The Z-coordinate of the origin to subtract.
+    i : int
+        An integer indicating which rows of the input array to keep, based 
+        on their position relative to the origin.
+        Can be 1 (keep all rows) or 2-9 
+        (keep rows with certain quadrant combinations).
+    
+    Returns
+    -------
+    numpy.ndarray, shape (M, 3)
+        The transformed array of Cartesian coordinates.
+    """
+
     array1 = array - [X, Y, Z]
     
     # Define lookup table mapping cases to conditions
@@ -107,14 +164,44 @@ def arrays(array: np.ndarray, X: float, Y: float, Z: float,
         return array1[~conditions[i]]
 
 
-def se_jack(jacks, meanjk, num):
+def se_jack(jacks: np.ndarray, meanjk: np.ndarray, num: int) -> np.ndarray:
+    """
+    Calculate the standard error of the mean using jackknife resampling.
+
+    Parameters
+    ----------
+    jacks : np.ndarray
+        A NumPy array of jackknife samples, where each row represents a jackknife sample.
+    meanjk : np.ndarray
+        The mean of the jackknife samples.
+    num : int
+        The number of samples in the original dataset.
+
+    Returns
+    -------
+    np.ndarray
+        A NumPy array of the same shape as `meanjk`, 
+        containing the standard error of the mean for each element.
+
+    Notes
+    -----
+    The standard error is calculated using the formula:
+
+    - If `jacks` is a one-dimensional array:
+        sqrt(sum((jacks - meanjk) ** 2) * (num - 1) / num)
+
+    - If `jacks` is a two-dimensional array:
+        sqrt(sum((jacks[i, :] - meanjk[i]) ** 2) * (num - 1) / num)
+
+    """
     if jacks.ndim == 1:
         return np.sqrt(
             np.sum(np.square(jacks - meanjk), axis=0) * (num - 1) / num)
     else:
+        meanjk_expand = meanjk[:, None]  # Calculate once to avoid redundancy
         return np.sqrt(
-            np.sum(np.square(jacks - meanjk[:, None]), axis=1) * (num - 1) /
-            num)
+            np.sum(np.square(jacks - meanjk_expand), axis=1) * (num - 1) / num)
+
 
 
 def remove_outliers(array, sigma=3):
