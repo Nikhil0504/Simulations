@@ -59,10 +59,12 @@ def chisq(obs: np.ndarray, model: np.ndarray, epsilon: float, mask, func: str="g
         return np.sum(np.square(residual) / (Ndata + np.square((epsilon * Ndata))))
         # return np.sum(np.square(residual) / (np.square((epsilon * Ndata))))
     elif func == "lorentz":
-        temp = np.square(residual) / np.square((epsilon * obs))
+        # temp = np.square(residual) / np.square((epsilon * obs))
+        temp = np.square(residual) / (Ndata + np.square((epsilon * Ndata)))
         return np.sum(np.log(1 + temp))
     elif func == 'abs':
-        return np.sum(np.abs(residual) / ((epsilon * obs)))
+        return np.sum(np.sqrt(np.square(residual) / (Ndata + np.square((epsilon * Ndata)))))
+        # return np.sum(np.abs(residual) / ((epsilon * obs)))
 
 
 @jit
@@ -83,66 +85,26 @@ def cost(lncvir,
 
 
 def arrays(array: np.ndarray, X: float, Y: float, Z: float,
-           i: int) -> np.ndarray:  # type: ignore
+           i: int) -> np.ndarray:
     array1 = array - [X, Y, Z]
+    
+    # Define lookup table mapping cases to conditions
+    conditions = {
+        2: (array1[:, 0] > 0) & (array1[:, 1] > 0) & (array1[:, 2] > 0),
+        3: (array1[:, 0] < 0) & (array1[:, 1] > 0) & (array1[:, 2] > 0),
+        4: (array1[:, 0] < 0) & (array1[:, 1] < 0) & (array1[:, 2] > 0),
+        5: (array1[:, 0] > 0) & (array1[:, 1] < 0) & (array1[:, 2] > 0),
+        6: (array1[:, 0] > 0) & (array1[:, 1] > 0) & (array1[:, 2] < 0),
+        7: (array1[:, 0] < 0) & (array1[:, 1] > 0) & (array1[:, 2] < 0),
+        8: (array1[:, 0] < 0) & (array1[:, 1] < 0) & (array1[:, 2] < 0),
+        9: (array1[:, 0] > 0) & (array1[:, 1] < 0) & (array1[:, 2] < 0),
+    }
+    
     if i == 1:
         return array1
-    elif i == 2:
-        return np.delete(
-            array1,
-            np.where((array1[:, 0] > 0) & (array1[:, 1] > 0) &
-                     (array1[:, 2] > 0))[0],
-            axis=0,
-        )
-    elif i == 3:
-        return np.delete(
-            array1,
-            np.where((array1[:, 0] < 0) & (array1[:, 1] > 0) &
-                     (array1[:, 2] > 0))[0],
-            axis=0,
-        )
-    elif i == 4:
-        return np.delete(
-            array1,
-            np.where((array1[:, 0] < 0) & (array1[:, 1] < 0) &
-                     (array1[:, 2] > 0))[0],
-            axis=0,
-        )
-    elif i == 5:
-        return np.delete(
-            array1,
-            np.where((array1[:, 0] > 0) & (array1[:, 1] < 0) &
-                     (array1[:, 2] > 0))[0],
-            axis=0,
-        )
-    elif i == 6:
-        return np.delete(
-            array1,
-            np.where((array1[:, 0] > 0) & (array1[:, 1] > 0) &
-                     (array1[:, 2] < 0))[0],
-            axis=0,
-        )
-    elif i == 7:
-        return np.delete(
-            array1,
-            np.where((array1[:, 0] < 0) & (array1[:, 1] > 0) &
-                     (array1[:, 2] < 0))[0],
-            axis=0,
-        )
-    elif i == 8:
-        return np.delete(
-            array1,
-            np.where((array1[:, 0] < 0) & (array1[:, 1] < 0) &
-                     (array1[:, 2] < 0))[0],
-            axis=0,
-        )
-    elif i == 9:
-        return np.delete(
-            array1,
-            np.where((array1[:, 0] > 0) & (array1[:, 1] < 0) &
-                     (array1[:, 2] < 0))[0],
-            axis=0,
-        )
+    else:
+        # Keep rows where condition is False instead of np.delete
+        return array1[~conditions[i]]
 
 
 def se_jack(jacks, meanjk, num):
