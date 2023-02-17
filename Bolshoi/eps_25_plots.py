@@ -1,4 +1,6 @@
 # %%
+import multiprocessing as mp
+
 from loading import *
 from halos import Halo
 
@@ -8,38 +10,44 @@ slices = np.array([0, 200, 400, 600, 800, 1000, 1200, 1400, 1497, 1545, 1568])[4
 MASS_BINS = MASS_BINS[4:]
 
 # %%
-def Eps(
+def Eps_Parallel(
     inds: np.ndarray,
     ep: float,
     func: str = "gaussian",
     lib: str = "scipy"
 ) -> np.ndarray:
-    main = np.zeros(0)
+    num_processes = mp.cpu_count() - 1  # you may want to adjust this based on your system
+    pool = mp.Pool(num_processes)
 
+    results = []
     for id, halo in enumerate(inds):
-        print(f'{lib} {id}')
-        h = Halo(int(halo[0]), MVIR, X, Y, Z, RVIR, RS)
+        results.append(pool.apply_async(Eps_Parallel_Helper, args=(halo, id, ep, func, lib)))
 
-        opts = np.zeros(0)
+    pool.close()
+    pool.join()
 
-        for jack in range(9):
-            density = halo[3 + (jack * 25):3 + ((jack + 1) * 25)]
-
-            optres = h.minimise_cost(density, ep, func, lib)
-
-            opts = np.append(opts, optres)
-
-        if main.size == 0:
-            main = opts
-        else:
-            main = np.vstack((main, opts))
-
+    main = np.vstack([r.get() for r in results])
     return main
 
+def Eps_Parallel_Helper(halo, id, ep, func, lib):
+    h = Halo(int(halo[0]), MVIR, X, Y, Z, RVIR, RS)
+
+    opts = np.zeros(0)
+
+    for jack in range(9):
+        density = halo[3 + (jack * 25):3 + ((jack + 1) * 25)]
+
+        optres = h.minimise_cost(density, ep, func, lib)
+
+        opts = np.append(opts, optres)
+
+    print(f'{func} {ep} {id}')
+    return opts
+
 # %%
-main = Eps(inds, 0.10, 'gaussian', "scipy")
-main2 = Eps(inds, 0.10, 'lorentz', "scipy")
-main3 = Eps(inds, 0.10, 'abs', "scipy")
+main = Eps_Parallel(inds, 0.10, 'gaussian', "scipy")
+main2 = Eps_Parallel(inds, 0.10, 'lorentz', "scipy")
+main3 = Eps_Parallel(inds, 0.10, 'abs', "scipy")
 
 # %%
 temp = se_jack(main[:, 1:], np.mean(main[:, 1:], axis=1), 8)

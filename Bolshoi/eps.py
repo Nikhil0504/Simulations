@@ -1,3 +1,5 @@
+import multiprocessing as mp
+
 from scipy.stats import median_abs_deviation as mad
 
 from halos import Halo
@@ -6,33 +8,39 @@ from loading import *
 plt.style.use(["science", "scatter"])
 
 
-def Eps(
+def Eps_Parallel(
     inds: np.ndarray,
     ep: float,
     func: str = "gaussian",
     lib: str = "scipy"
 ) -> np.ndarray:
-    main = np.zeros(0)
+    num_processes = mp.cpu_count() - 1  # you may want to adjust this based on your system
+    pool = mp.Pool(num_processes)
 
+    results = []
     for id, halo in enumerate(inds):
-        print(f'{func} {ep} {id}')
-        h = Halo(int(halo[0]), MVIR, X, Y, Z, RVIR, RS)
+        results.append(pool.apply_async(Eps_Parallel_Helper, args=(halo, id, ep, func, lib)))
 
-        opts = np.zeros(0)
+    pool.close()
+    pool.join()
 
-        for jack in range(9):
-            density = halo[3 + (jack * 25):3 + ((jack + 1) * 25)]
-
-            optres = h.minimise_cost(density, ep, func, lib)
-
-            opts = np.append(opts, optres)
-
-        if main.size == 0:
-            main = opts
-        else:
-            main = np.vstack((main, opts))
-
+    main = np.vstack([r.get() for r in results])
     return main
+
+def Eps_Parallel_Helper(halo, id, ep, func, lib):
+    h = Halo(int(halo[0]), MVIR, X, Y, Z, RVIR, RS)
+
+    opts = np.zeros(0)
+
+    for jack in range(9):
+        density = halo[3 + (jack * 25):3 + ((jack + 1) * 25)]
+
+        optres = h.minimise_cost(density, ep, func, lib)
+
+        opts = np.append(opts, optres)
+
+    print(f'{func} {ep} {id}')
+    return opts
 
 
 inds = np.loadtxt("out/inds.txt")
@@ -41,7 +49,7 @@ epss = np.arange(0.01, 0.26, 0.01)
 mean_se = np.array([])
 
 for ep in epss:
-    main = Eps(inds, ep)
+    main = Eps_Parallel(inds, ep)
     temp = se_jack(main[:, 1:], np.mean(main[:, 1:], axis=1), 8)
 
     slices = np.array(
@@ -59,7 +67,7 @@ for ep in epss:
         mean_se = np.vstack((mean_se, medians))
 
 
-np.savetxt(f"out/mean_se_gaussian_mad_constrains.out", mean_se)
+np.savetxt(f"out/mean_se_gaussian_mad_constrains_possion.out", mean_se)
 
 ##########################
 plt.style.use(["science"])
@@ -80,4 +88,4 @@ for i in range(10):
 
     plt.legend(prop={"size": 8})
 
-plt.savefig(f"figures/eps_gaussian_mad_constrains.jpg", dpi=150)
+plt.savefig(f"figures/eps_gaussian_mad_constrains_possion.jpg", dpi=150)
