@@ -33,12 +33,12 @@ class Halo:
     def Rs(self):
         return self.rs
 
-    def distances(self, arr, ind):
-        return compute_R(*self.coords, arr, ind)
+    def distances(self, arr_points, ind):
+        return compute_R(*self.coords, arr_points, ind)
 
     @jit(fastmath=True, parallel=True, forceobj=True, error_model="numpy")
-    def densities(self, arr, ind, factor):
-        R = self.distances(arr, ind)
+    def densities(self, arr_points, ind, factor):
+        R = self.distances(arr_points, ind)
         pairs, _ = np.histogram(R, bins=RADIUS_BINS)
         total_mass = np.array(pairs) * PART_MASS * (100 / PERCENT)
 
