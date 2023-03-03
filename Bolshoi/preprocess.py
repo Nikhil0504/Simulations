@@ -38,7 +38,7 @@ def pre_halo_cat(HP: str, UL: float, LL: float):
                 check = l[5]  # sub-halos
                 # only get distinct halos and M_vir between 1e11-1e15 and
                 # constrain the Z to a certain point.
-                if check == -1 and l[19] < 10.0 and UL > data > LL:
+                if check == -1 and UL > data > LL:
                     mvir = np.append(mvir, data)
                     x = np.append(x, l[17])
                     y = np.append(y, l[18])
@@ -46,12 +46,12 @@ def pre_halo_cat(HP: str, UL: float, LL: float):
                     rvir = np.append(rvir, l[11])
                     rs = np.append(rs, l[35])
 
-    np.save(f"{CACHE_PATH}/halofunc_points", mvir)
-    np.save(f"{CACHE_PATH}/rvir_points", rvir)
-    np.save(f"{CACHE_PATH}/rs_points", rs)
-    np.save(f"{CACHE_PATH}/x_points", x)
-    np.save(f"{CACHE_PATH}/y_points", y)
-    np.save(f"{CACHE_PATH}/z_points", z)
+    np.save(f"{CACHE_PATH}/halofunc_points_full", mvir)
+    np.save(f"{CACHE_PATH}/rvir_points_full", rvir)
+    np.save(f"{CACHE_PATH}/rs_points_full", rs)
+    np.save(f"{CACHE_PATH}/x_points_full", x)
+    np.save(f"{CACHE_PATH}/y_points_full", y)
+    np.save(f"{CACHE_PATH}/z_points_full", z)
 
 
 def pre_part_file(PP: str, chunk_size: int = 100000000):
@@ -80,8 +80,10 @@ def pre_part_file(PP: str, chunk_size: int = 100000000):
 
 def main():
     """Main function of the script."""
+    print('Starting...')
     pre_halo_cat(HALOS_PATH, UPPER_LIMIT, LOWER_LIMIT)
     pre_part_file(POINTS_PATH)
+    print('done!')
 
 
 if __name__ == "__main__":
