@@ -64,7 +64,7 @@ for ep in epss:
         sigma = 1.4826 * mad(new)
         temp2 = (new - med_c) / sigma
         # medians = np.append(medians, 1.4826 * mad(new))
-        medians = np.append(medians, len(np.where(np.abs(temp2) > 3)[0]))
+        medians = np.append(medians, len(np.where(np.abs(temp2) > 3)[0]) / len(new))
 
     if mad_se.size == 0:
         mad_se = medians
