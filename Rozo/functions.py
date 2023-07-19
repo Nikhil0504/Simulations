@@ -138,6 +138,12 @@ def cost(params, M, obs, mask, epsilon=0.1, func="gaussian"):
     Cost = chisq(obs, model, epsilon, mask, func)
     return Cost
 
+@jit(forceobj=True, fastmath=True)
+def cost_nfw(lncvir, M, obs, mask, Rvir, epsilon=0.1, func="gaussian"):
+    Rs = Rvir / np.exp(lncvir)
+    _, model = rho_r(Rs, M, Rvir, mask)
+    Cost = chisq(obs, model, epsilon, mask, func)
+    return Cost
 
 ### Jackknife Resampling ###
 def se_jack(jacks: np.ndarray, meanjk: np.ndarray, num: int) -> np.ndarray:
