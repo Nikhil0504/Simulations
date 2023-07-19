@@ -14,8 +14,9 @@ NIKHIL_PATH = '/home/nikhilgaruda/Simulations/Rozo/out'
 
 def parallel_lncvir(args):
     key, m200, r200 = args
-    with h5.File(join(SDD, 'catalogue/halo_particle_dict.h5'), 'r') as hdf_dict, \
-        h5.File(join(SRC, 'data/susmita-sim_%d.h5'), 'r', driver='family', memb_size=MEMBSIZE) as part_cat:
+    with h5.File(join(SDD, 'halo_particle_dict.h5'), 'r') as hdf_dict, \
+        h5.File(join(SRC, 'orbits/orbit_catalogue_%d.h5'), 'r', 
+                driver='family', memb_size=MEMBSIZE) as part_cat:
         p_idx = hdf_dict[str(int(key))][()]
         # print(p_idx, len(p_idx))
         try:
@@ -26,22 +27,25 @@ def parallel_lncvir(args):
         h = Halo(m200, r200, R)
         dens = h.densities()
         # you will need to change underlying cost function to use NFW instead of the paper's function.
-        # cost = h.minimise_cost(Den=dens)
+        cost = h.minimise_cost(Den=dens, profile='NFW')
 
         # return all args and dens, cost
-        full = np.array([key, m200, r200, *dens])
+        full = np.array([key, m200, r200, cost, *dens])
         return full
     
 
 def get_info():
     with h5.File(join(SDD, 'halo_catalogue.h5'), 'r') as hdf_cat:
 
-        # Load all halo ids with an M200m
-        m200_mask = (hdf_cat['M200m'][()] > 0)
-        good_m200 = hdf_cat['M200m'][()][m200_mask]
-        good_r200 = hdf_cat['R200m'][()][m200_mask]
-        hid = hdf_cat['OHID'][()]
-        good_hid = hid[m200_mask]  # with particles
+        # Load all halo ids with an M200m and Morb > 0
+        m200m = hdf_cat['M200m'][:]
+        morb = hdf_cat['Morb'][:]
+        ids = hdf_cat['OHID'][:]
+        r200m = hdf_cat['R200m'][:]
+        mask = (m200m > 0) & (morb > 0)
+        good_hid = ids[mask]
+        good_m200 = m200m[mask]
+        good_r200 = r200m[mask]
     
     return np.array([good_hid, good_m200, good_r200]).T
 
@@ -55,12 +59,13 @@ class ColoredBar:
         return x
 
 if __name__ == "__main__":
-    # Set up multiprocessing
-    num_cpus = 20
-    pool = Pool(processes=num_cpus)
-    
     iterator = get_info()
     total = iterator.shape[0]
+    print(total)
+
+    # Set up multiprocessing
+    num_cpus = 16
+    pool = Pool(processes=num_cpus)
 
     results = []
     for result in tqdm.tqdm(pool.imap_unordered(parallel_lncvir, iterator), total=total):
@@ -73,15 +78,14 @@ if __name__ == "__main__":
     pool.join()
 
     print(results.shape)
-    
 
-    np.save(join(NIKHIL_PATH, 'catalogue/m200_densities.npy'), results)
+    np.save(join(NIKHIL_PATH, 'catalogue/m200_densities_new.npy'), results)
 
-    with h5.File(join(NIKHIL_PATH, 'catalogue/m200_densities.h5'), 'w') as hdf:
+    with h5.File(join(NIKHIL_PATH, 'catalogue/m200_densities_new.h5'), 'w') as hdf:
         hdf.create_dataset('HID', data=results[:, 0])
         hdf.create_dataset('M200m', data=results[:, 1])
         hdf.create_dataset('R200m', data=results[:, 2])
-        # hdf.create_dataset('lnc', data=results[:, 3])
-        hdf.create_dataset('densities', data=results[:, 3:])
+        hdf.create_dataset('lnc', data=results[:, 3])
+        hdf.create_dataset('densities', data=results[:, 4:])
     
     print('done')
