@@ -36,5 +36,5 @@ MEMBSIZE = int(10 * 1000**3)  # 10.0 GB file
 # PATHS
 SRC = abspath('/spiff/edgarmsc/simulations/Banerjee/')
 SDD = SRC
-# NIKHIL_PATH = abspath('/spiff/nikhilgaruda/cache/Rozo/')
-NIKHIL_PATH = abspath('/home/nikhilgaruda/Simulations/Rozo/out')
+NIKHIL_PATH = abspath('/spiff/nikhilgaruda/cache/Rozo/')
+# NIKHIL_PATH = abspath('/home/nikhilgaruda/Simulations/Rozo/out')
