@@ -120,7 +120,7 @@ def chisq(obs: np.ndarray, model: np.ndarray, epsilon: float, mask, func: str="g
         chisq = np.sum(np.sqrt(np.square(residual) / denom))
     else:
         chisq = np.inf
-        raise(NotImplementedError(f"Function {func} not implemented"))
+        # raise(NotImplementedError(f"Function {func} not implemented"))
 
 
     return chisq
