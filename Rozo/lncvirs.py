@@ -13,7 +13,7 @@ from os.path import join
 NIKHIL_PATH = '/home/nikhilgaruda/Simulations/Rozo/out'
 
 def parallel_lncvir(args):
-    key, m200, r200 = args
+    key, m200, morb, r200 = args
     with h5.File(join(SDD, 'halo_particle_dict.h5'), 'r') as hdf_dict, \
         h5.File(join(SRC, 'orbits/orbit_catalogue_%d.h5'), 'r', 
                 driver='family', memb_size=MEMBSIZE) as part_cat:
@@ -30,7 +30,7 @@ def parallel_lncvir(args):
         cost = h.minimise_cost(Den=dens, profile='NFW')
 
         # return all args and dens, cost
-        full = np.array([key, m200, r200, cost, *dens])
+        full = np.array([key, m200, morb, r200, cost, *dens])
         return full
     
 
@@ -46,8 +46,9 @@ def get_info():
         good_hid = ids[mask]
         good_m200 = m200m[mask]
         good_r200 = r200m[mask]
+        good_morb = morb[mask]
     
-    return np.array([good_hid, good_m200, good_r200]).T
+    return np.array([good_hid, good_m200, good_morb, good_r200]).T
 
 class ColoredBar:
     def __init__(self, total):
@@ -84,8 +85,9 @@ if __name__ == "__main__":
     with h5.File(join(NIKHIL_PATH, 'catalogue/m200_densities_new.h5'), 'w') as hdf:
         hdf.create_dataset('HID', data=results[:, 0])
         hdf.create_dataset('M200m', data=results[:, 1])
-        hdf.create_dataset('R200m', data=results[:, 2])
-        hdf.create_dataset('lnc', data=results[:, 3])
-        hdf.create_dataset('densities', data=results[:, 4:])
+        hdf.create_dataset('Morb', data=results[:, 2])
+        hdf.create_dataset('R200m', data=results[:, 3])
+        hdf.create_dataset('lnc', data=results[:, 4])
+        hdf.create_dataset('densities', data=results[:, 5:])
     
     print('done')
